@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPTV Channels</title>
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
+  <style>
+    html, body{
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    body {
+      padding: 1.5rem;
+      background-color: #f8f8f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      color: #555;
+    }
+    .container {
+      grid-template-areas: 
+        'aside main'
+        'footer footer';
+      grid-template-columns: 1fr 3fr;
+      grid-template-rows: 5fr 1fr;
+      display: grid;
+      gap: 0.75rem;
+      height: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .box {
+      padding: 1rem;
+      border-radius: 0.3rem;
+      background-color: #fff;
+      box-shadow: 0 0 0.1rem 0.1rem rgb(190 190 190 / 25%);
+      border: 1px solid #ddd;
+    }
+    #video {
+      width: 100%; 
+      height: auto;
+      background-color: #000;
+    }
+    main {
+      grid-area: main;
+    }
+    main .header {
+      margin-bottom: .5rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid #ddd8;
+    }
+    main .header h1 {
+      margin: 0;
+    }
+    aside {
+      color: #555;
+      font-size: 14px;
+      font-weight: bold;
+      grid-area: aside;
+      padding: 0 !important;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      height: 0;
+    }
+    aside .header {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #ddd8;
+    }
+    aside .header svg {
+      margin-inline-end: 0.3rem;
+    }
+    aside ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      overflow-y: auto;
+      height: 100%;
+    }
+    aside ul li {
+      border-bottom: 1px solid #ddd8;
+    }
+    aside ul li a {
+      color: inherit;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      column-gap: 0.45rem;
+      padding: 0.2rem 1rem;
+      height: 60px;
+    }
+    aside ul li a.active,
+    aside ul li a:hover {
+      background-color: #ddd5;
+    }
+    aside ul li a img {
+      width: 36px;
+      height: auto;
+      max-height: 60px;
+    }
+    footer {
+      grid-area: footer;
+      padding: 1rem 10rem;
+      color: #888;
+      font-size: small;
+      font-family: 'Cambria', 'Times New Roman', Times, serif;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  
+  <section class="container">
+    <main class="box">
+      <div class="header">
+        <h1 id="channel_name"></h1>
+      </div>
+      <video id="video" preload="auto" controls></video>
+    </main>
+    <aside class="box">
+      <div class="header">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 8.5C3 7.67157 3.67157 7 4.5 7H13V10H4.5C3.67157 10 3 9.32843 3 8.5V8.5Z"></path>
+          <path d="M14 7H19.5C20.3284 7 21 7.67157 21 8.5V8.5C21 9.32843 20.3284 10 19.5 10H14V7Z"></path>
+          <path d="M3 12.5C3 11.6716 3.67157 11 4.5 11H10V14H4.5C3.67157 14 3 13.3284 3 12.5V12.5Z"></path>
+          <path d="M11 11H19.5C20.3284 11 21 11.6716 21 12.5V12.5C21 13.3284 20.3284 14 19.5 14H11V11Z"></path>
+          <path d="M3 16.5C3 15.6716 3.67157 15 4.5 15H16V18H4.5C3.67157 18 3 17.3284 3 16.5V16.5Z"></path>
+          <path d="M17 15H19.5C20.3284 15 21 15.6716 21 16.5V16.5C21 17.3284 20.3284 18 19.5 18H17V15Z"></path>
+        </svg>
+        <span>Channels (<span id="channels_count"></span>)</span>
+      </div>
+      <ul id="channels_list"></ul>
+    </aside>
+    <footer>
+      <strong>Disclaimer:</strong> This web application provides a collection of channels available for free online. 
+      It is intended to be an easy way to watch TV channels and news for people affected by the war in the Middle East. 
+      Please do not report or remove.
+    </footer>
+  </section>
+
+  <script>
+    const videoElement = document.getElementById('video')
+    videoElement.muted = true;
+
+    const player = new shaka.Player();
+    player.attach(videoElement);
+
+    const channels = [
+      {
+        name: 'Kan 11',
+        alt_name: 'כאן 11',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Kan11Logo.svg/512px-Kan11Logo.svg.png',
+        src: 'https://kan11w.media.kan.org.il/hls/live/2105694/2105694/master.m3u8'
+      },
+      {
+        name: 'Kan Educational',
+        alt_name: 'כאן חינוכית',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/KanHinuchit.svg/512px-KanHinuchit.svg.png',
+        src: 'https://kan23.media.kan.org.il/hls/live/2024691/2024691/master.m3u8'
+      },
+      {
+        name: 'Makan 33',
+        alt_name: 'מכאן 33',
+        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/4/4d/Makan.svg/220px-Makan.svg.png',
+        src: 'https://makan.media.kan.org.il/hls/live/2024680/2024680/master.m3u8'
+      },
+      {
+        name: 'Knesset Channel',
+        alt_name: 'ערוץ כנסת',
+        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/4/43/Knessetch10.svg/200px-Knessetch10.svg.png',
+        src: 'https://kneset.gostreaming.tv/p2-kneset/_definst_/myStream/chunklist.m3u8'
+      },
+      {
+        name: 'Channel 13',
+        alt_name: 'ערוץ 13',
+        logo: 'https://13tv.co.il/assets/favicon/favicon-32x32.png',
+        src: 'https://d18b0e6mopany4.cloudfront.net/out/v1/1a7c55961dec4c72b51d79e5d9216cff/index.m3u8'
+      },
+      {
+        name: 'Now 14',
+        alt_name: 'עכשיו 14',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Noamperetz-now14logo.png/250px-Noamperetz-now14logo.png',
+        src: 'https://n-121-6.il.cdn-redge.media/livehls/oil/ch14/live/ch14/live.livx/playlist.m3u8'
+      },
+      {
+        name: 'Channel 26',
+        alt_name: 'ערוץ 26',
+        logo: 'https://media3.reshet.tv/image/upload/t_og_image/v1577712771/LivePic01_zq4f5t.jpg',
+        src: 'https://d2lckchr9cxrss.cloudfront.net/out/v1/c73af7694cce4767888c08a7534b503c/index.m3u8'
+      },
+      {
+        name: 'Hala TV',
+        alt_name: 'הלא TV',
+        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/7/71/Hala_TV_Logo1.svg/250px-Hala_TV_Logo1.svg.png',
+        src: 'https://stream.panet.com/edge/halaTV/playlist.m3u8'
+      },
+      {
+        name: 'Al Jazeera',
+        alt_name: 'الجزيرة',
+        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/7/71/Aljazeera.svg/198px-Aljazeera.svg.png',
+        src: 'https://live-hls-apps-aja-fa.getaj.net/AJA/index.m3u8'
+      },
+      {
+        name: 'Al Jazeera Documentary',
+        alt_name: ' الجزيرة الوثائقية',
+        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/e/e6/Al_Jazeera_Doc.png/150px-Al_Jazeera_Doc.png',
+        src: 'https://live-hls-apps-ajd-fa.getaj.net/AJD/index.m3u8'
+      },
+      {
+        name: 'Al Jazeera Mubasher',
+        alt_name: ' الجزيرة مباشر',
+        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/c/c3/%D8%B4%D8%B9%D8%A7%D8%B1_%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%AC%D8%B2%D9%8A%D8%B1%D8%A9_%D9%85%D8%A8%D8%A7%D8%B4%D8%B1.svg/161px-%D8%B4%D8%B9%D8%A7%D8%B1_%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%AC%D8%B2%D9%8A%D8%B1%D8%A9_%D9%85%D8%A8%D8%A7%D8%B4%D8%B1.svg.png',
+        src: 'https://live-hls-apps-ajm-fa.getaj.net/AJM/index.m3u8'
+      },
+      {
+        name: 'Al Araby TV',
+        alt_name: 'العربي',
+        logo: 'https://www.alaraby.com/themes/custom/arabytv/logo.svg',
+        src: 'https://alarabyta.cdn.octivid.com/alaraby/smil:alaraby.stream.smil/chunklist.m3u8'
+      },
+      {
+        name: 'Al Araby TV 2',
+        alt_name: 'العربي 2',
+        logo: 'https://www.alaraby2.com/themes/custom/arabytv/images/logos/LOgo-ATV-CH2nd.svg',
+        src: 'https://alarabyta.cdn.octivid.com/alaraby2n/smil:alaraby2n.stream.smil/chunklist.m3u8'
+      },
+      {
+        name: 'Al Arabiya',
+        alt_name: 'العربية',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Al-Arabiya_new_logo.svg/250px-Al-Arabiya_new_logo.svg.png',
+        src: 'https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8'
+      },
+      {
+        name: 'Al Arabiya Al Hadath',
+        alt_name: 'العربية الحدث',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Al_Hadath_TV_logo_2023.svg/250px-Al_Hadath_TV_logo_2023.svg.png',
+        src: 'https://av.alarabiya.net/alarabiapublish/alhadath.smil/playlist.m3u8'
+      },
+      {
+        name: 'Makkah TV',
+        alt_name: 'قناة مكة', 
+        logo: 'https://yt3.googleusercontent.com/vnzT5UjDon61eWfuUayJOm5iSLMu8WdK8YhDkcFOMlAmTlZSP38OoeiwwIsKzgB2VQPtXYRsSg=s120-c-k-c0x00ffffff-no-rj',
+        src: 'https://media2.streambrothers.com:1936/8122/8122/playlist.m3u8'
+      },
+      {
+        name: 'Aflam',
+        alt_name: 'أفلام', 
+        logo: 'https://shahid.mbc.net/mediaObject/06e1a853-795b-4b01-b1fd-baed5df7969c?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/0044dd4b001a466c941ad77b04a574a2/index.m3u8'
+      },
+      {
+        name: 'Bab Al Hara',
+        alt_name: 'باب الحارة', 
+        logo: 'https://shahid.mbc.net/mediaObject/c70e4088-d219-44c9-a998-0fca701ad0b5?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/948c54279b594944adde578c95f1d7d1/index.m3u8'
+      },
+      {
+        name: 'Maraya',
+        alt_name: 'مرايا', 
+        logo: 'https://shahid.mbc.net/mediaObject/d089a559-4f41-4def-a786-f98fcfbf0464?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/a4a39d8e92e34b0780ca602270a59512/index.m3u8'
+      },
+      {
+        name: 'Ramez',
+        alt_name: 'رامز', 
+        logo: 'https://shahid.mbc.net/mediaObject/ce578abe-99bd-4579-8552-4831d02f2700?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/0ef83323c0374a1187c182645db2a45f/index.m3u8'
+      },
+      {
+        name: 'Omar',
+        alt_name: 'عمر',
+        logo: 'https://shahid.mbc.net/mediaObject/d13a3c16-3386-4458-971d-fc25c0406f69?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/9747e20a05794a14b0cfccd7c621dd00/index_2.m3u8'
+      },
+      {
+        name: '6ash',
+        alt_name: 'طاش',
+        logo: 'https://shahid.mbc.net/mediaObject/8732de71-79e9-4915-a4a4-16297f9bd8a5?type=png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/e34e3ac9d2534543a13b44c2b458b0c2/index_2.m3u8'
+      },
+      {
+        name: 'MBC 1',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/MBC_1_Logo.svg/330px-MBC_1_Logo.svg.png',
+        src: 'https://d3o3cim6uzorb4.cloudfront.net/out/v1/0965e4d7deae49179172426cbfb3bc5e/index.m3u8'
+      },
+      {
+        name: 'MBC 3',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/MBC_3_Logo.svg/280px-MBC_3_Logo.svg.png',
+        src: 'https://shls-mbc3-prod-dub.shahid.net/out/v1/d5bbe570e1514d3d9a142657d33d85e6/index.m3u8'
+      },
+      {
+        name: 'MBC 4',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/MBC_4_Logo.svg/220px-MBC_4_Logo.svg.png',
+        src: 'https://shls-masr-prod-dub.shahid.net/out/v1/c08681f81775496ab4afa2bac7ae7638/index.m3u8'
+      },
+      {
+        name: 'MBC 5',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/5_MBC.webp/250px-5_MBC.webp.png',
+        src: 'https://shls-mbc5-prod-dub.shahid.net/out/v1/2720564b6a4641658fdfb6884b160da2/index.m3u8'
+      },
+      {
+        name: 'MBC Bollywood',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/MBC_Bollywood_Logo.svg/220px-MBC_Bollywood_Logo.svg.png',
+        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-bollywood/546eb40d7dcf9a209255dd2496903764/index.m3u8'
+      },
+      {
+        name: 'MBC Drama',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/MBC_Drama_Logo.svg/250px-MBC_Drama_Logo.svg.png',
+        src: 'https://mbc1-enc.edgenextcdn.net/out/v1/b0b3a0e6750d4408bb86d703d5feffd1/index.m3u8'
+      },
+      {
+        name: 'MBC Iraq',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/MBC_Iraq.svg/250px-MBC_Iraq.svg.png',
+        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-iraq/e38c44b1b43474e1c39cb5b90203691e/index.m3u8'
+      },
+      {
+        name: 'MBC Masr 1',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/MBC_Masr_Logo.png/250px-MBC_Masr_Logo.png',
+        src: 'https://shls-masr-prod-dub.shahid.net/out/v1/d5036cabf11e45bf9d0db410ca135c18/index.m3u8'
+      },
+      {
+        name: 'MBC Masr 2',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/MBC_Masr_2_Logo.svg/220px-MBC_Masr_2_Logo.svg.png',
+        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr-2/754931856515075b0aabf0e583495c68/index.m3u8'
+      },
+      {
+        name: 'MBC MBC+ Drama',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/MBC_Drama_Plus_TV_Channel_Logo.png/250px-MBC_Drama_Plus_TV_Channel_Logo.png',
+        src: 'https://mbcplusdrama-prod-dub-enc.edgenextcdn.net/out/v1/97ca0ce6fc6142f4b14c0a694af59eab/index.m3u8'
+      },
+      {
+        name: 'Movies Action',
+        logo: 'https://i.imgur.com/NIVhISa.png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/46079e838e65490c8299f902a7731168/index.m3u8'
+      },
+      {
+        name: 'Movies Thriller',
+        logo: 'https://i.imgur.com/JWihdcl.png',
+        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/f6d718e841f8442f8374de47f18c93a7/index.m3u8'
+      },
+      {
+        name: 'Spacetoon Arabic',
+        logo: 'https://upload.wikimedia.org/wikipedia/en/2/2b/Spacetoon_logo.png',
+        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-spacetoon/d8382fb9ab4b2307058f12c7ea90db54/index.m3u8'
+      },
+    ];
+
+    document.getElementById('channels_count').innerText = channels.length;
+
+    const channels_list = document.getElementById('channels_list');
+    const channel_name = document.getElementById('channel_name');
+    const channel_items = document.getElementsByClassName('channelItem');
+
+    var current_channel = parseInt(localStorage.getItem('cch')) || 0;
+
+    function setChannel(id) {
+      if (channels[id].config) {
+        player.configure(channels[id].config);
+      } else {
+        player.configure({});
+      }
+
+      channel_items.item(current_channel).classList.remove('active');
+      channel_items.item(id).classList.add('active');
+      current_channel = id;
+      localStorage.setItem('cch', id);
+      window.location.hash = 'channel_item_' + id;
+
+      player.load(channels[id].src).then(function() {
+        videoElement.play();
+        channel_name.innerText = channels[id].alt_name || channels[id].name;
+        console.log('Stream is loaded!');
+      }).catch(function(error) {
+        console.error('Error loading stream:', error);
+      });
+    }
+
+    const logo_placeholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAABq0lEQVRYR+2VPU4DMRCF31jpuQCCnp8QyelQECegpMk1KABBzQpqbgAX4AZAQbO2AhH0hBNwgOxQrB1ss0u8WbKhyNfEmRnPvGdbCbDkvyOl5DBWhbr7AdNklkaz7PmV2IazCo5iWuNp+T+hzGFRbK7YgWWCGqHuYAoDdRtOQynlzfS+zHu4xRUh/FTzlJ5AeFR1KevdmIAyFn4FCxcQdQVSyhsA/UlhADMnRHTMzInW+sTNSSkfAPSY+VRrfeHmUOEE1sKAhZmHdk1Eu26u2+0emOGjouGIFaCU2lNKERHtwwxVSpFSirTWbSHEU7gHed2RWV4GqQlRAixZlm0hd/oSpD7NZ9sGHPdDrfX1d6lPJQFEtIHc2asbT9P03ixXbMy6F0KcTQoLqCSAmXvIm3oCTG4EAJ1OZ8e6B/CYpuldWOtSSQARbSN3/KMpEb0DQKvVWrfuieg8rAuJFmBcea8+YIQ8f2jc3zpXU0q0gCzLNlH8AIF88IdZ9gFgPB5f+RXFRAsgolUUPECLEOLNrpk5GQwGz35FMaW/hGjoDyn6BOaFJ6AJx0tCvgB96MGFSogjDgAAAABJRU5ErkJggg==';
+
+    for (let i = 0; i < channels.length; ++i) {
+      let li = document.createElement('li');
+      let a = document.createElement('a');
+
+      a.href = 'javascript:void(0);';
+      a.classList.add('channelItem');
+      a.dataset.id = i;
+      a.innerText = channels[i].alt_name || channels[i].name;
+      a.addEventListener('click', (e) => {
+        setChannel(e.target.dataset.id);
+      });
+      
+      let logo = channels[i].logo || logo_placeholder;
+      
+      img = document.createElement('img');
+      img.width = img.height = 24;
+      img.src = logo;
+      img.alt = channels[i].name + ' logo';
+      img.title = channels[i].name;
+      img.onerror = (e) => {
+        if (e.target.src !== logo_placeholder) {
+          e.target.src = logo_placeholder;
+        }
+      }
+      a.prepend(img);
+
+      li.id = 'channel_item_' + i;
+      li.append(a);
+      channels_list.append(li);
+    }
+
+    window.addEventListener("keydown", (e) => {
+      let ch = current_channel;
+      switch(e.key) {
+        case 'ArrowUp':
+          ch--;
+          break;
+        case 'ArrowDown':
+          ch++;
+          break;
+      }
+      if (ch !== current_channel) {
+        if (ch < 0) { 
+          ch = channels.length - 1;
+        } else if (ch > channels.length - 1) {
+          ch = 0;
+        }
+        setChannel(ch);
+      }
+    });
+
+    setChannel(current_channel);
+  </script>
+
+</body>
+</html>
