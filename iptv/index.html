@@ -4,437 +4,120 @@
   <meta charset="utf-8">
   <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IPTV Channels</title>
+  <title>Online IPTV Player</title>
   <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
-  <style>
-    html, body{
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    body {
-      padding: 1.5rem;
-      background-color: #f8f8f8;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14px;
-      color: #555;
-    }
-    .container {
-      grid-template-areas: 
-        'aside main'
-        'footer footer';
-      grid-template-columns: 1fr 3fr;
-      grid-template-rows: 5fr 1fr;
-      display: grid;
-      gap: 0.75rem;
-      height: 100%;
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .box {
-      padding: 1rem;
-      border-radius: 0.3rem;
-      background-color: #fff;
-      box-shadow: 0 0 0.1rem 0.1rem rgb(190 190 190 / 25%);
-      border: 1px solid #ddd;
-    }
-    #video {
-      width: 100%; 
-      height: auto;
-      background-color: #000;
-    }
-    main {
-      grid-area: main;
-    }
-    main .header {
-      margin-bottom: .5rem;
-      padding-bottom: .5rem;
-      border-bottom: 1px solid #ddd8;
-    }
-    main .header h1 {
-      margin: 0;
-    }
-    aside {
-      color: #555;
-      font-size: 14px;
-      font-weight: bold;
-      grid-area: aside;
-      padding: 0 !important;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      height: 0;
-    }
-    aside .header {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border-bottom: 1px solid #ddd8;
-    }
-    aside .header svg {
-      margin-inline-end: 0.3rem;
-    }
-    aside ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      overflow-y: auto;
-      height: 100%;
-    }
-    aside ul li {
-      border-bottom: 1px solid #ddd8;
-    }
-    aside ul li a {
-      color: inherit;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      column-gap: 0.45rem;
-      padding: 0.2rem 1rem;
-      height: 60px;
-    }
-    aside ul li a.active,
-    aside ul li a:hover {
-      background-color: #ddd5;
-    }
-    aside ul li a img {
-      width: 36px;
-      height: auto;
-      max-height: 60px;
-    }
-    footer {
-      grid-area: footer;
-      padding: 1rem 10rem;
-      color: #888;
-      font-size: small;
-      font-family: 'Cambria', 'Times New Roman', Times, serif;
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
-<body>
-  
-  <section class="container">
-    <main class="box">
-      <div class="header">
-        <h1 id="channel_name"></h1>
+<body class="">
+
+  <section class="container" id="main_container">
+    <header class="top-header">
+      <div class="top-header-left">
+        <a href="/iptv" class="site-logo" title="IPTV Player">IPTV Player</a>
       </div>
-      <video id="video" preload="auto" controls></video>
+      <div class="top-header-right top-header-links">
+        <a href="javascript:document.getElementById('manual').showModal();" title="manual">
+          <svg fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M216,32V192a8.00039,8.00039,0,0,1-8,8H72a16.01833,16.01833,0,0,0-16,16H192a8,8,0,0,1,0,16H48a8.00039,8.00039,0,0,1-8-8V56A32.03667,32.03667,0,0,1,72,24H208A8.00039,8.00039,0,0,1,216,32Z"></path></svg>
+          <span>Manual</span>
+        </a>
+        <a href="javascript:document.getElementById('settings').showModal();" title="settings">
+          <svg fill="currentColor" viewBox="0 0 256.00098 256.00098" xmlns="http://www.w3.org/2000/svg"><path d="M237.46191,104.26611a8.00135,8.00135,0,0,0-3.93554-5.29687L209.75049,85.77051c-1.31592-2.55078-2.75391-5.04639-4.29981-7.46094l.458-27.2124a8.00049,8.00049,0,0,0-2.62158-6.05811A111.13811,111.13811,0,0,0,162.17773,21.3418a8.00131,8.00131,0,0,0-6.55468.75927l-23.31836,13.9917c-2.86865-.13672-5.75-.13916-8.61133-.00683L100.35547,22.08252a8.003,8.003,0,0,0-6.55762-.75879A111.15557,111.15557,0,0,0,52.7207,45.07715a8.00055,8.00055,0,0,0-2.61963,6.05664l.45752,27.18994c-1.55078,2.41455-2.99365,4.90869-4.31152,7.4541l-23.7959,13.21a8.0003,8.0003,0,0,0-3.93555,5.29932,111.13522,111.13522,0,0,0,.03223,47.45068,8.00135,8.00135,0,0,0,3.93555,5.29688L46.25928,170.2334c1.31592,2.55078,2.7539,5.04639,4.2998,7.46094l-.458,27.2124a8.00053,8.00053,0,0,0,2.62159,6.0581A111.13809,111.13809,0,0,0,93.832,234.66211a8.00177,8.00177,0,0,0,6.55469-.75928l23.31836-13.9917c2.86816.13623,5.749.13867,8.61133.00684l23.33789,14.00342a8.00237,8.00237,0,0,0,6.55761.75879,111.15549,111.15549,0,0,0,41.07715-23.75342,8.00052,8.00052,0,0,0,2.61963-6.05664l-.45752-27.18994c1.55078-2.41455,2.99365-4.9087,4.31153-7.45411l23.79589-13.21a8.0002,8.0002,0,0,0,3.93555-5.29931A111.13527,111.13527,0,0,0,237.46191,104.26611ZM128.00488,172.002a44,44,0,1,1,44-44A44.04978,44.04978,0,0,1,128.00488,172.002Z"></path></svg>
+          <span>Settings</span>
+        </a>
+      </div>
+    </header>
+    <main class="box">
+      <div id="videocontrolslayer">
+        <div class="header">
+          <div class="header-left">
+            <button type="button" id="togglemenu_btn" class="control-btn">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z"></path></svg>
+            </button>
+            <h1 id="channel_name"></h1>
+          </div>
+          <div class="header-right">
+            <button type="button" id="volume_btn" class="control-btn">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="volume-svg"><path d="M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm13.517 4.134l-1.416-1.416A8.978 8.978 0 0 0 21 12a8.982 8.982 0 0 0-3.304-6.968l1.42-1.42A10.976 10.976 0 0 1 23 12c0 3.223-1.386 6.122-3.594 8.134zm-3.543-3.543l-1.422-1.422A3.993 3.993 0 0 0 16 12c0-1.43-.75-2.685-1.88-3.392l1.439-1.439A5.991 5.991 0 0 1 18 12c0 1.842-.83 3.49-2.137 4.591z"></path></svg>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  class="volume-mute-svg"><path d="M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm14.525-4l3.536 3.536-1.414 1.414L19 13.414l-3.536 3.536-1.414-1.414L17.586 12 14.05 8.464l1.414-1.414L19 10.586l3.536-3.536 1.414 1.414L20.414 12z"></path></svg>
+            </button>
+            <button type="button" id="fullscreen_btn" class="control-btn">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="fullscreen-svg"><path d="M16 3h6v6h-2V5h-4V3zM2 3h6v2H4v4H2V3zm18 16v-4h2v6h-6v-2h4zM4 19h4v2H2v-6h2v4z"></path></svg>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="fullscreen-exit-svg"><path d="M18 7h4v2h-6V3h2v4zM8 9H2V7h4V3h2v6zm10 8v4h-2v-6h6v2h-4zM8 15v6H6v-4H2v-2h6z"></path></svg>
+            </button>
+          </div>
+        </div>
+        <div id="selectchannel" class="sclbl"></div>
+      </div>
+      <div class="video-container">
+        <div class="video16x9">
+          <video id="video" preload="auto" nocontrols></video>
+        </div>
+      </div>
     </main>
-    <aside class="box">
+    <aside class="box" id="channels_menu">
       <div class="header">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 8.5C3 7.67157 3.67157 7 4.5 7H13V10H4.5C3.67157 10 3 9.32843 3 8.5V8.5Z"></path>
-          <path d="M14 7H19.5C20.3284 7 21 7.67157 21 8.5V8.5C21 9.32843 20.3284 10 19.5 10H14V7Z"></path>
-          <path d="M3 12.5C3 11.6716 3.67157 11 4.5 11H10V14H4.5C3.67157 14 3 13.3284 3 12.5V12.5Z"></path>
-          <path d="M11 11H19.5C20.3284 11 21 11.6716 21 12.5V12.5C21 13.3284 20.3284 14 19.5 14H11V11Z"></path>
-          <path d="M3 16.5C3 15.6716 3.67157 15 4.5 15H16V18H4.5C3.67157 18 3 17.3284 3 16.5V16.5Z"></path>
-          <path d="M17 15H19.5C20.3284 15 21 15.6716 21 16.5V16.5C21 17.3284 20.3284 18 19.5 18H17V15Z"></path>
-        </svg>
-        <span>Channels (<span id="channels_count"></span>)</span>
+        <svg viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z"></path></svg>
+        <span>Channels (<span id="channels_count">0</span>)</span>
       </div>
       <ul id="channels_list"></ul>
     </aside>
     <footer>
-      <strong>Disclaimer:</strong> This web application provides a collection of channels available for free online. 
-      It is intended to be an easy way to watch TV channels and news for people affected by the war in the Middle East. 
-      Please do not report or remove.
+      <div class="footer-top">
+        Made by <a href="https://github.com/b06fae0f" target="_blank">@b06fae0f</a> / 
+        iptv-player version::0.0.1 Beta
+      </div>
+      <div class="footer-bottom">
+      &copy; 2025 All rights reserved.
+      </div>
     </footer>
   </section>
-
-  <script>
-    const videoElement = document.getElementById('video')
-    videoElement.muted = true;
-
-    const player = new shaka.Player();
-    player.attach(videoElement);
-
-    const channels = [
-      {
-        name: 'Kan 11',
-        alt_name: 'כאן 11',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Kan11Logo.svg/512px-Kan11Logo.svg.png',
-        src: 'https://kan11w.media.kan.org.il/hls/live/2105694/2105694/master.m3u8'
-      },
-      {
-        name: 'Kan Educational',
-        alt_name: 'כאן חינוכית',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/KanHinuchit.svg/512px-KanHinuchit.svg.png',
-        src: 'https://kan23.media.kan.org.il/hls/live/2024691/2024691/master.m3u8'
-      },
-      {
-        name: 'Makan 33',
-        alt_name: 'מכאן 33',
-        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/4/4d/Makan.svg/220px-Makan.svg.png',
-        src: 'https://makan.media.kan.org.il/hls/live/2024680/2024680/master.m3u8'
-      },
-      {
-        name: 'Knesset Channel',
-        alt_name: 'ערוץ כנסת',
-        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/4/43/Knessetch10.svg/200px-Knessetch10.svg.png',
-        src: 'https://kneset.gostreaming.tv/p2-kneset/_definst_/myStream/chunklist.m3u8'
-      },
-      {
-        name: 'Channel 13',
-        alt_name: 'ערוץ 13',
-        logo: 'https://13tv.co.il/assets/favicon/favicon-32x32.png',
-        src: 'https://d18b0e6mopany4.cloudfront.net/out/v1/1a7c55961dec4c72b51d79e5d9216cff/index.m3u8'
-      },
-      {
-        name: 'Now 14',
-        alt_name: 'עכשיו 14',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Noamperetz-now14logo.png/250px-Noamperetz-now14logo.png',
-        src: 'https://n-121-6.il.cdn-redge.media/livehls/oil/ch14/live/ch14/live.livx/playlist.m3u8'
-      },
-      {
-        name: 'Channel 26',
-        alt_name: 'ערוץ 26',
-        logo: 'https://media3.reshet.tv/image/upload/t_og_image/v1577712771/LivePic01_zq4f5t.jpg',
-        src: 'https://d2lckchr9cxrss.cloudfront.net/out/v1/c73af7694cce4767888c08a7534b503c/index.m3u8'
-      },
-      {
-        name: 'Hala TV',
-        alt_name: 'הלא TV',
-        logo: 'https://upload.wikimedia.org/wikipedia/he/thumb/7/71/Hala_TV_Logo1.svg/250px-Hala_TV_Logo1.svg.png',
-        src: 'https://stream.panet.com/edge/halaTV/playlist.m3u8'
-      },
-      {
-        name: 'Al Jazeera',
-        alt_name: 'الجزيرة',
-        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/7/71/Aljazeera.svg/198px-Aljazeera.svg.png',
-        src: 'https://live-hls-apps-aja-fa.getaj.net/AJA/index.m3u8'
-      },
-      {
-        name: 'Al Jazeera Documentary',
-        alt_name: ' الجزيرة الوثائقية',
-        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/e/e6/Al_Jazeera_Doc.png/150px-Al_Jazeera_Doc.png',
-        src: 'https://live-hls-apps-ajd-fa.getaj.net/AJD/index.m3u8'
-      },
-      {
-        name: 'Al Jazeera Mubasher',
-        alt_name: ' الجزيرة مباشر',
-        logo: 'https://upload.wikimedia.org/wikipedia/ar/thumb/c/c3/%D8%B4%D8%B9%D8%A7%D8%B1_%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%AC%D8%B2%D9%8A%D8%B1%D8%A9_%D9%85%D8%A8%D8%A7%D8%B4%D8%B1.svg/161px-%D8%B4%D8%B9%D8%A7%D8%B1_%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%AC%D8%B2%D9%8A%D8%B1%D8%A9_%D9%85%D8%A8%D8%A7%D8%B4%D8%B1.svg.png',
-        src: 'https://live-hls-apps-ajm-fa.getaj.net/AJM/index.m3u8'
-      },
-      {
-        name: 'Al Araby TV',
-        alt_name: 'العربي',
-        logo: 'https://www.alaraby.com/themes/custom/arabytv/logo.svg',
-        src: 'https://alarabyta.cdn.octivid.com/alaraby/smil:alaraby.stream.smil/chunklist.m3u8'
-      },
-      {
-        name: 'Al Araby TV 2',
-        alt_name: 'العربي 2',
-        logo: 'https://www.alaraby2.com/themes/custom/arabytv/images/logos/LOgo-ATV-CH2nd.svg',
-        src: 'https://alarabyta.cdn.octivid.com/alaraby2n/smil:alaraby2n.stream.smil/chunklist.m3u8'
-      },
-      {
-        name: 'Al Arabiya',
-        alt_name: 'العربية',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Al-Arabiya_new_logo.svg/250px-Al-Arabiya_new_logo.svg.png',
-        src: 'https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8'
-      },
-      {
-        name: 'Al Arabiya Al Hadath',
-        alt_name: 'العربية الحدث',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Al_Hadath_TV_logo_2023.svg/250px-Al_Hadath_TV_logo_2023.svg.png',
-        src: 'https://av.alarabiya.net/alarabiapublish/alhadath.smil/playlist.m3u8'
-      },
-      {
-        name: 'Makkah TV',
-        alt_name: 'قناة مكة', 
-        logo: 'https://yt3.googleusercontent.com/vnzT5UjDon61eWfuUayJOm5iSLMu8WdK8YhDkcFOMlAmTlZSP38OoeiwwIsKzgB2VQPtXYRsSg=s120-c-k-c0x00ffffff-no-rj',
-        src: 'https://media2.streambrothers.com:1936/8122/8122/playlist.m3u8'
-      },
-      {
-        name: 'Aflam',
-        alt_name: 'أفلام', 
-        logo: 'https://shahid.mbc.net/mediaObject/06e1a853-795b-4b01-b1fd-baed5df7969c?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/0044dd4b001a466c941ad77b04a574a2/index.m3u8'
-      },
-      {
-        name: 'Bab Al Hara',
-        alt_name: 'باب الحارة', 
-        logo: 'https://shahid.mbc.net/mediaObject/c70e4088-d219-44c9-a998-0fca701ad0b5?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/948c54279b594944adde578c95f1d7d1/index.m3u8'
-      },
-      {
-        name: 'Maraya',
-        alt_name: 'مرايا', 
-        logo: 'https://shahid.mbc.net/mediaObject/d089a559-4f41-4def-a786-f98fcfbf0464?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/a4a39d8e92e34b0780ca602270a59512/index.m3u8'
-      },
-      {
-        name: 'Ramez',
-        alt_name: 'رامز', 
-        logo: 'https://shahid.mbc.net/mediaObject/ce578abe-99bd-4579-8552-4831d02f2700?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/0ef83323c0374a1187c182645db2a45f/index.m3u8'
-      },
-      {
-        name: 'Omar',
-        alt_name: 'عمر',
-        logo: 'https://shahid.mbc.net/mediaObject/d13a3c16-3386-4458-971d-fc25c0406f69?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/9747e20a05794a14b0cfccd7c621dd00/index_2.m3u8'
-      },
-      {
-        name: '6ash',
-        alt_name: 'طاش',
-        logo: 'https://shahid.mbc.net/mediaObject/8732de71-79e9-4915-a4a4-16297f9bd8a5?type=png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/e34e3ac9d2534543a13b44c2b458b0c2/index_2.m3u8'
-      },
-      {
-        name: 'MBC 1',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/MBC_1_Logo.svg/330px-MBC_1_Logo.svg.png',
-        src: 'https://d3o3cim6uzorb4.cloudfront.net/out/v1/0965e4d7deae49179172426cbfb3bc5e/index.m3u8'
-      },
-      {
-        name: 'MBC 3',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/MBC_3_Logo.svg/280px-MBC_3_Logo.svg.png',
-        src: 'https://shls-mbc3-prod-dub.shahid.net/out/v1/d5bbe570e1514d3d9a142657d33d85e6/index.m3u8'
-      },
-      {
-        name: 'MBC 4',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/MBC_4_Logo.svg/220px-MBC_4_Logo.svg.png',
-        src: 'https://shls-masr-prod-dub.shahid.net/out/v1/c08681f81775496ab4afa2bac7ae7638/index.m3u8'
-      },
-      {
-        name: 'MBC 5',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/5_MBC.webp/250px-5_MBC.webp.png',
-        src: 'https://shls-mbc5-prod-dub.shahid.net/out/v1/2720564b6a4641658fdfb6884b160da2/index.m3u8'
-      },
-      {
-        name: 'MBC Bollywood',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/MBC_Bollywood_Logo.svg/220px-MBC_Bollywood_Logo.svg.png',
-        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-bollywood/546eb40d7dcf9a209255dd2496903764/index.m3u8'
-      },
-      {
-        name: 'MBC Drama',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/MBC_Drama_Logo.svg/250px-MBC_Drama_Logo.svg.png',
-        src: 'https://mbc1-enc.edgenextcdn.net/out/v1/b0b3a0e6750d4408bb86d703d5feffd1/index.m3u8'
-      },
-      {
-        name: 'MBC Iraq',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/MBC_Iraq.svg/250px-MBC_Iraq.svg.png',
-        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-iraq/e38c44b1b43474e1c39cb5b90203691e/index.m3u8'
-      },
-      {
-        name: 'MBC Masr 1',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/MBC_Masr_Logo.png/250px-MBC_Masr_Logo.png',
-        src: 'https://shls-masr-prod-dub.shahid.net/out/v1/d5036cabf11e45bf9d0db410ca135c18/index.m3u8'
-      },
-      {
-        name: 'MBC Masr 2',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/MBC_Masr_2_Logo.svg/220px-MBC_Masr_2_Logo.svg.png',
-        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr-2/754931856515075b0aabf0e583495c68/index.m3u8'
-      },
-      {
-        name: 'MBC MBC+ Drama',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/MBC_Drama_Plus_TV_Channel_Logo.png/250px-MBC_Drama_Plus_TV_Channel_Logo.png',
-        src: 'https://mbcplusdrama-prod-dub-enc.edgenextcdn.net/out/v1/97ca0ce6fc6142f4b14c0a694af59eab/index.m3u8'
-      },
-      {
-        name: 'Movies Action',
-        logo: 'https://i.imgur.com/NIVhISa.png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/46079e838e65490c8299f902a7731168/index.m3u8'
-      },
-      {
-        name: 'Movies Thriller',
-        logo: 'https://i.imgur.com/JWihdcl.png',
-        src: 'https://shls-live-enc.edgenextcdn.net/out/v1/f6d718e841f8442f8374de47f18c93a7/index.m3u8'
-      },
-      {
-        name: 'Spacetoon Arabic',
-        logo: 'https://upload.wikimedia.org/wikipedia/en/2/2b/Spacetoon_logo.png',
-        src: 'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-spacetoon/d8382fb9ab4b2307058f12c7ea90db54/index.m3u8'
-      },
-    ];
-
-    document.getElementById('channels_count').innerText = channels.length;
-
-    const channels_list = document.getElementById('channels_list');
-    const channel_name = document.getElementById('channel_name');
-    const channel_items = document.getElementsByClassName('channelItem');
-
-    var current_channel = parseInt(localStorage.getItem('cch')) || 0;
-
-    function setChannel(id) {
-      if (channels[id].config) {
-        player.configure(channels[id].config);
-      } else {
-        player.configure({});
-      }
-
-      channel_items.item(current_channel).classList.remove('active');
-      channel_items.item(id).classList.add('active');
-      current_channel = id;
-      localStorage.setItem('cch', id);
-      window.location.hash = 'channel_item_' + id;
-
-      player.load(channels[id].src).then(function() {
-        videoElement.play();
-        channel_name.innerText = channels[id].alt_name || channels[id].name;
-        console.log('Stream is loaded!');
-      }).catch(function(error) {
-        console.error('Error loading stream:', error);
-      });
-    }
-
-    const logo_placeholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAABq0lEQVRYR+2VPU4DMRCF31jpuQCCnp8QyelQECegpMk1KABBzQpqbgAX4AZAQbO2AhH0hBNwgOxQrB1ss0u8WbKhyNfEmRnPvGdbCbDkvyOl5DBWhbr7AdNklkaz7PmV2IazCo5iWuNp+T+hzGFRbK7YgWWCGqHuYAoDdRtOQynlzfS+zHu4xRUh/FTzlJ5AeFR1KevdmIAyFn4FCxcQdQVSyhsA/UlhADMnRHTMzInW+sTNSSkfAPSY+VRrfeHmUOEE1sKAhZmHdk1Eu26u2+0emOGjouGIFaCU2lNKERHtwwxVSpFSirTWbSHEU7gHed2RWV4GqQlRAixZlm0hd/oSpD7NZ9sGHPdDrfX1d6lPJQFEtIHc2asbT9P03ixXbMy6F0KcTQoLqCSAmXvIm3oCTG4EAJ1OZ8e6B/CYpuldWOtSSQARbSN3/KMpEb0DQKvVWrfuieg8rAuJFmBcea8+YIQ8f2jc3zpXU0q0gCzLNlH8AIF88IdZ9gFgPB5f+RXFRAsgolUUPECLEOLNrpk5GQwGz35FMaW/hGjoDyn6BOaFJ6AJx0tCvgB96MGFSogjDgAAAABJRU5ErkJggg==';
-
-    for (let i = 0; i < channels.length; ++i) {
-      let li = document.createElement('li');
-      let a = document.createElement('a');
-
-      a.href = 'javascript:void(0);';
-      a.classList.add('channelItem');
-      a.dataset.id = i;
-      a.innerText = channels[i].alt_name || channels[i].name;
-      a.addEventListener('click', (e) => {
-        setChannel(e.target.dataset.id);
-      });
-      
-      let logo = channels[i].logo || logo_placeholder;
-      
-      img = document.createElement('img');
-      img.width = img.height = 24;
-      img.src = logo;
-      img.alt = channels[i].name + ' logo';
-      img.title = channels[i].name;
-      img.onerror = (e) => {
-        if (e.target.src !== logo_placeholder) {
-          e.target.src = logo_placeholder;
-        }
-      }
-      a.prepend(img);
-
-      li.id = 'channel_item_' + i;
-      li.append(a);
-      channels_list.append(li);
-    }
-
-    window.addEventListener("keydown", (e) => {
-      let ch = current_channel;
-      switch(e.key) {
-        case 'ArrowUp':
-          ch--;
-          break;
-        case 'ArrowDown':
-          ch++;
-          break;
-      }
-      if (ch !== current_channel) {
-        if (ch < 0) { 
-          ch = channels.length - 1;
-        } else if (ch > channels.length - 1) {
-          ch = 0;
-        }
-        setChannel(ch);
-      }
-    });
-
-    setChannel(current_channel);
-  </script>
-
+  
+  <dialog id="manual" closedby="any">
+    <h2>Manual</h2>
+    <ul>
+      <li>
+        Press 
+        <svg fill="currentColor" width="16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 377.343 377.343" xml:space="preserve"><path d="M301.689,53.5H75.651c-10.876,0-19.725,8.842-19.725,19.713v230.909c0,10.868,8.843,19.711,19.725,19.711h226.039 c10.873,0,19.722-8.843,19.722-19.711V73.218C321.406,62.348,312.562,53.5,301.689,53.5z M186.176,106.395h-60.143v34.014H177.8 v28.279h-51.766v62.198H88.006V78.217h98.17V106.395z M338.677,0H38.662C19.094,0,3.226,15.869,3.226,35.439v306.464 c0,19.573,15.869,35.439,35.437,35.439h300.02c19.568,0,35.436-15.866,35.436-35.439V35.434C374.117,15.869,358.25,0,338.677,0z M335.381,304.122c0,18.567-15.113,33.687-33.691,33.687H75.651c-18.576,0-33.695-15.114-33.695-33.687V73.218 c0-18.569,15.114-33.688,33.695-33.688h226.039c18.572,0,33.691,15.114,33.691,33.688V304.122z"></path></svg>
+        to switch fullscreen. 
+      </li>
+      <li>
+        Use 
+        <svg fill="currentColor" width="32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" xml:space="preserve"><path d="M10 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m43 20l-33 21l33 21zM97 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m10 29l21 33l21-33zM97 87h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m31 20l-21 33h42zM184 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m19 20v42l33-21z"></path></svg>
+        to control channels menu.
+      </li>
+      <li>
+        Press
+        <svg fill="currentColor" width="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" xml:space="preserve"><path d="M216,40H40A16.01833,16.01833,0,0,0,24,56V200a16.01833,16.01833,0,0,0,16,16H216a16.01833,16.01833,0,0,0,16-16V56A16.01833,16.01833,0,0,0,216,40Zm-32,96a8.00039,8.00039,0,0,1-8,8H99.314l10.34327,10.34277a8.00053,8.00053,0,0,1-11.31446,11.31446l-24-24c-.05664-.05664-.10449-.11768-.15869-.17578-.12549-.13282-.251-.26514-.36719-.40625-.0913-.11084-.17138-.22706-.25537-.3418-.07031-.09522-.14453-.188-.21093-.28662-.085-.12647-.15918-.25782-.23584-.38819-.05567-.09423-.11524-.186-.167-.2832-.06933-.12891-.12841-.26172-.18994-.39355-.04931-.10547-.10205-.209-.147-.31641-.05225-.12695-.09522-.25586-.14063-.38477-.042-.11816-.0874-.23437-.124-.355-.03906-.1289-.06787-.25976-.10058-.39013-.03077-.12305-.06543-.24414-.09034-.36914-.02978-.15186-.04834-.30469-.06933-.45752-.01465-.106-.03516-.20948-.0459-.3169a8.02276,8.02276,0,0,1,0-1.584c.01074-.10742.03125-.21094.0459-.3169.021-.15283.03955-.30566.06933-.45752.02491-.125.05957-.24609.09034-.36914.03271-.13037.06152-.26123.10058-.39013.03662-.12061.082-.23682.124-.355.04541-.12891.08838-.25782.14063-.38477.04492-.10742.09766-.21094.147-.31641.06153-.13183.12061-.26464.18994-.39355.05176-.09717.11133-.189.167-.2832.07666-.13037.15087-.26172.23584-.38819.0664-.09863.14062-.1914.21093-.28662.084-.11474.16407-.231.25537-.3418.11622-.14111.2417-.27343.36719-.40625.0542-.0581.10205-.11914.15869-.17578l24-24a8.00053,8.00053,0,0,1,11.31446,11.31446L99.314,128H168V104a8,8,0,0,1,16,0Z"></path></svg>
+        to select a channel. 
+      </li>
+      <li>Or simply use the mouse 
+        <svg fill="currentColor" width="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256"><path d="M148,24H108A64.07239,64.07239,0,0,0,44,88v80a64.07239,64.07239,0,0,0,64,64h40a64.07239,64.07239,0,0,0,64-64V88A64.07239,64.07239,0,0,0,148,24Zm48,64v16H136V40h12A48.05468,48.05468,0,0,1,196,88ZM108,40h12v64H60V88A48.05468,48.05468,0,0,1,108,40Z"></path></svg>.
+      </li>
+    </ul>
+  </dialog>
+  
+  <dialog id="settings" closedby="any">
+    <h2>Settings</h2>
+    <form name="settingsForm" enctype="multipart/form-data">
+      <label for="playlistUrl">Playlist URL:</label>
+      <input name="url" id="playlistUrl" placeholder="https://example.com/playlist.m3u" /><br>
+      <label for="playlistUpdateTime">Update Time:</label>
+      <select name="update" id="playlistUpdateTime">
+        <option value="0">Never</option>
+        <option value="1">Every day</option>
+        <option value="2">Every week</option>
+        <option value="3">Every month</option>
+        <option value="4">Every year</option>
+      </select>
+      <br>
+      <button type="submit" name="loadUrl">Load</button>
+      <p style="text-align: center;"><strong>OR</strong></p>
+      <label for="playlistFile">Upload Playlist (.m3u file):</label>
+      <input name="file" type="file" id="playlistFile" /><br>
+      <button type="submit" name="uploadFile">Upload</button>
+    </form>
+  </dialog>
+  
+  <script src="./app.js"></script>
 </body>
 </html>
