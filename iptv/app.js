@@ -4,7 +4,7 @@ var ALERT_POSY = 20;
 var ALERT_EXPIRES = 5000;
 var ALERT_SLIDE_DURATION = 200;
 
-function alertMsg(msg, type='success') {
+function AlertBox(msg, type='success') {
 	function slide(target, top1, top2, duration=300, callback) {
 		var interval = 16.666;
 		var steps = duration / interval;
@@ -216,16 +216,16 @@ function setChannel(id=0, ignore=false) {
 			.catch(function(error) { 
 				switch (error.code) {
 					case shaka.util.Error.Code.BAD_HTTP_STATUS:
-						alertMsg('Error: Bad or unavailable URL.', 'fail');		
+						AlertBox('Error: Bad or unavailable URL.', 'fail');		
 						break;
 					case shaka.util.Error.Code.HTTP_ERROR:
-						alertMsg('Error: Unable to play stream due to server error or CORS policy.', 'fail');
+						AlertBox('Error: Unable to play stream due to server error or CORS policy.', 'fail');
 						break;
 					case shaka.util.Error.Code.TIMEOUT:
-						alertMsg('Error: Server took a long time to respond.', 'fail');
+						AlertBox('Error: Server took a long time to respond.', 'fail');
 						break;
 					default:
-						alertMsg('Error: ' + (error.message || error.code), 'fail');
+						AlertBox('Error: ' + (error.message || error.code), 'fail');
 						console.error(error);
 						break;
 				}
@@ -590,8 +590,21 @@ function parsem3u(str) {
 function loadm3u(loc, cb) {
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			cb(parsem3u(this.responseText));
+		if (this.readyState == 4) {
+			switch (this.status) {
+				case 200:
+					cb(parsem3u(this.responseText));
+					break;
+				case 403:
+					AlertBox('You don\'t have permission to access this file.', 'fail');
+					break;
+				case 404:
+					AlertBox('M3U file not found.', 'fail');
+					break;
+				default:
+					console.error('Loading M3U file returned %d status code.', this.status);
+					break;
+			}
 		}
 	};
 	xhr.open('GET', loc, true);
