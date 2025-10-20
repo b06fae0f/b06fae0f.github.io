@@ -546,21 +546,20 @@ footer a:hover {
 		pointer-events: none;
 		position: absolute;
 		top: 0;
-		left: 0;
+		left: -100%;
 		z-index: 2;
 		width: 100%;
 		min-height: auto;
 		height: 100%;
 		border: 0;
 		border-radius: 0;
-		opacity: 0;
-		transition: none;    
+		opacity: 1;
+		transition: .3s left ease-in-out;
 	}
 	.menuopen .iptv-playlist,
 	.fs.menuopen .iptv-playlist {
 		pointer-events: auto;
 		left: 0;
-		opacity: 1;
 	}
 	.iptv-playlist-list {
 		padding: 0;
