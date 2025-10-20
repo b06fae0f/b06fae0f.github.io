@@ -1,5 +1,17 @@
 var starttime = performance.now();
 
+function toggleFullscreen() {
+	!document.fullscreen ? document.body.requestFullscreen() : document.exitFullscreen();	
+}
+
+function isFullscreen() {
+	return document.body.classList.contains('fs');
+}
+
+function isSmallscreen() {
+	return window.innerWidth <= 768;
+}
+
 var ALERT_POSY = 20;
 var ALERT_EXPIRES = 5000;
 var ALERT_SLIDE_DURATION = 200;
@@ -94,17 +106,34 @@ document.addEventListener('fullscreenchange', function(e) {
 	}
 });
 
-function toggleFullscreen() {
-	!document.fullscreen ? document.body.requestFullscreen() : document.exitFullscreen();	
-}
 
-function isFullscreen() {
-	return document.body.classList.contains('fs');
-}
+var MENU_MIN_DRAG = 50;
 
-function isSmallscreen() {
-	return window.innerWidth <= 768;
-}
+document.addEventListener('mousedown', function(e) {
+	if (!isSmallscreen()) 
+		return;
+	
+	var initXpos = e.clientX;
+	var _mouseUpFunc = function(e) {
+		if (Math.abs(initXpos - e.clientX) > MENU_MIN_DRAG)
+			document.body.classList.toggle('menuopen', initXpos < e.clientX);
+		document.removeEventListener('mouseup', _mouseUpFunc);
+	};
+	document.addEventListener('mouseup', _mouseUpFunc);
+});
+
+document.addEventListener('touchstart', function(e) {
+	if (!isSmallscreen()) 
+		return;
+
+	var initXpos = e.touches[0].clientX;
+	var _touchendFunc = function(e) {
+		if (Math.abs(initXpos - e.changedTouches[0].clientX) > MENU_MIN_DRAG)
+			document.body.classList.toggle('menuopen', initXpos < e.changedTouches[0].clientX);
+		document.removeEventListener('touchend', _touchendFunc);
+	};
+	document.addEventListener('touchend', _touchendFunc);
+});
 
 var FLASH_CNTRL_TIME = 2500;
 var opencontrolshndle = null;
