@@ -33,10 +33,15 @@ a:hover {
 	border-radius: .3rem;
 	border: 1px solid #ccc;
 	position: absolute;
-	transform: translateX(-50%);
 	left: 50%;
-	top: -50px;
+	top: 0;
+	transition-property: transform;
+	transition-duration: 200ms;
+	transform: translate3d(-50%, -100%, 0);
 	z-index: 3;
+}
+.alert.show {
+	transform: translate3d(-50%, 20px, 0);
 }
 .alert.success {
 	color: green;
@@ -178,9 +183,10 @@ main {
 /** iptv player styles **/
 .iptv-player {
     display: flex;
-    flex: 1;
-	flex-direction: row-reverse;
     gap: 0.75rem;
+	flex: 1;
+	flex-direction: row-reverse;
+	touch-action: pan-y;
 }
 .iptv-main {
     width: 75%;
@@ -234,16 +240,16 @@ main {
 #fullscreen_btn .fullscreen-exit-svg {
 	display: none;
 }
-.fs #fullscreen_btn .fullscreen-exit-svg {
+.iptv-player.fs #fullscreen_btn .fullscreen-exit-svg {
 	display: inline-block;
 }
-.fs #fullscreen_btn .fullscreen-svg {
+.iptv-player.fs #fullscreen_btn .fullscreen-svg {
 	display: none;
 }
 #togglemenu_btn {
 	display: none;
 }
-.fs #togglemenu_btn {
+.iptv-player.fs #togglemenu_btn {
 	display: inline-flex;
 }
 #volume_btn .volume-mute-svg {
@@ -433,26 +439,11 @@ footer a:hover {
 	text-decoration: underline;
 }
 /** fullscreen styles **/
-.fs {
-	padding: 0;
-	background-color: #000;
-}
-.fs .container {
-	position: relative;
-	display: block;
-	margin: 0;
-	max-width: 100%;
-}
-.fs main {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-.fs .iptv-main {
+.iptv-player.fs .iptv-main {
     width: 100%;
     height: 100%;
 }
-.fs .iptv-controls-layer {
+.iptv-player.fs .iptv-controls-layer {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -460,13 +451,13 @@ footer a:hover {
 	height: 100%;
 	cursor: none;
 }
-.fs .iptv-controls-layer.open {
+.iptv-player.fs .iptv-controls-layer.open {
 	cursor: auto;
 }
-.fs .iptv-control-btn {
+.iptv-player.fs .iptv-control-btn {
 	color: #fff;
 }
-.fs .iptv-header {
+.iptv-player.fs .iptv-header {
 	color: #fffa;
 	position: absolute;
 	top: 0;
@@ -481,18 +472,18 @@ footer a:hover {
 	transition: .2s all ease-in-out;
     background-image: linear-gradient(to bottom, #0000008f, transparent);
 }
-.fs .iptv-controls-layer.open .iptv-header {
+.iptv-player.fs .iptv-controls-layer.open .iptv-header {
 	pointer-events: auto;
 	opacity: 1;
 }
-.fs .iptv-title {
+.iptv-player.fs .iptv-title {
 	font-weight: normal;
 }
-.fs .iptv-video-container,
-.fs .iptv-video-container video {
+.iptv-player.fs .iptv-video-container,
+.iptv-player.fs .iptv-video-container video {
 	border-radius: 0;
 }
-.fs .iptv-playlist {
+.iptv-player.fs .iptv-playlist {
 	pointer-events: none;
 	position: absolute;
 	top: 5rem;
@@ -504,13 +495,10 @@ footer a:hover {
 	opacity: 0;
 	transition: .2s all ease-in-out;
 }
-.fs.menuopen .iptv-playlist {
+.iptv-player.fs.menuopen .iptv-playlist {
 	pointer-events: auto;
 	left: 2rem;
 	opacity: 1;
-}
-.fs header, .fs footer {
-	display: none;
 }
 /** small screen styles */
 @media screen and (max-width: 768px) {
@@ -542,11 +530,11 @@ footer a:hover {
 		border-radius: 0;
 	}
 	.iptv-playlist,
-	.fs .iptv-playlist {
+	.iptv-player.fs .iptv-playlist {
 		pointer-events: none;
 		position: absolute;
 		top: 0;
-		left: -100%;
+		left: 0 !important;
 		z-index: 2;
 		width: 100%;
 		min-height: auto;
@@ -554,12 +542,15 @@ footer a:hover {
 		border: 0;
 		border-radius: 0;
 		opacity: 1;
-		transition: .3s left ease-in-out;
+		transition: none;
+		transition-duration: 200ms;
+		transition-property: transform;
+		transform: translate3d(-100%, 0, 0);
 	}
-	.menuopen .iptv-playlist,
-	.fs.menuopen .iptv-playlist {
+	.iptv-player.menuopen .iptv-playlist,
+	.iptv-player.fs.menuopen .iptv-playlist {
 		pointer-events: auto;
-		left: 0;
+		transform: translate3d(0, 0, 0);
 	}
 	.iptv-playlist-list {
 		padding: 0;
