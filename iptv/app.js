@@ -1,69 +1,36 @@
 var starttime = performance.now();
 
-function toggleFullscreen() {
-	!document.fullscreen ? document.body.requestFullscreen() : document.exitFullscreen();	
-}
-
-function isFullscreen() {
-	return document.body.classList.contains('fs');
-}
-
 function isSmallscreen() {
 	return window.innerWidth <= 768;
 }
 
-var ALERT_POSY = 20;
-var ALERT_EXPIRES = 5000;
-var ALERT_SLIDE_DURATION = 200;
-
 function AlertBox(msg, type='success') {
-	function slide(target, top1, top2, duration=300, callback) {
-		var interval = 16.666;
-		var steps = duration / interval;
-		var direction = top1 < top2 ? 1 : -1;
-		var increment = (Math.abs(top1 - top2) / steps) * direction;
-		var top = top1;
-		target.style.top = top + 'px';
-		
-		var fn = setInterval(function() {
-			if ((direction === 1 && top >= top2) || (direction === -1 && top <= top2)) {
-				clearInterval(fn);
-				target.style.top = top2 + 'px';
-				if (callback && typeof callback === 'function') {
-					callback();
-				}
-			} else {
-				top += increment;
-				target.style.top = top + 'px';
-			}
-		}, interval);
-	}
-	
-	var d = document.body.appendChild(document.createElement('div'));
+	var d = iptv_player.appendChild(document.createElement('div'));
 	d.classList.add('alert', type);
+	d.addEventListener('transitionend', function(e) {
+		if (e.target.classList.contains('show')) {
+			setTimeout(function() {
+				e.target.classList.remove('show');
+			}, 5000);
+		} else {
+			e.target.remove();
+		}
+	});
 	
 	var s = d.appendChild(document.createElement('span'));
 	s.innerText = msg;
-	
-	var d_initY = -1 * d.offsetHeight;
 	
 	var a = d.appendChild(document.createElement('a'));
 	a.classList.add('alert-close');
 	a.href = 'javascript:void(0)';
 	a.innerHTML = '&times;';
 	a.addEventListener('click', function() {
-		slide(d, ALERT_POSY, d_initY, ALERT_SLIDE_DURATION, function() {
-			d.remove();
-		});
+		d.classList.remove('show');
 	});
-	
-	slide(d, d_initY, ALERT_POSY, ALERT_SLIDE_DURATION, function() {
-		setTimeout(function() {
-			slide(d, ALERT_POSY, d_initY, ALERT_SLIDE_DURATION, function() {
-				d.remove();
-			});
-		}, ALERT_EXPIRES);
-	});
+
+	setTimeout(function() {
+		d.classList.add('show');
+	}, 16.666);
 }
 
 var videoElement = document.getElementById('video');
@@ -90,15 +57,24 @@ player.attach(videoElement);
 player.addEventListener('loading', function() { console.log('Loading stream...'); });
 player.addEventListener('loaded', function() { console.log('Stream is loaded!'); });
 
+var iptv_player = document.getElementsByClassName('iptv-player')[0];
 var channels_menu = document.getElementById('channels_menu');
 
+function toggleFullscreen() {
+	!document.fullscreen ? iptv_player.requestFullscreen() : document.exitFullscreen();	
+}
+
+function isFullscreen() {
+	return iptv_player.classList.contains('fs');
+}
+
 document.addEventListener('fullscreenchange', function(e) {
-	if (![null, document.body].includes(document.fullscreenElement)) {
+	if (![null, iptv_player].includes(document.fullscreenElement)) {
 		document.exitFullscreen();
 		return;
 	}
 	
-	if (document.body.classList.toggle('fs', document.fullscreen)) {
+	if (iptv_player.classList.toggle('fs', document.fullscreen)) {
 		channels_menu.style.display = 'none';
 		setTimeout(function() {
 			channels_menu.removeAttribute('style');
@@ -106,34 +82,78 @@ document.addEventListener('fullscreenchange', function(e) {
 	}
 });
 
+function _getTouchEvent(e) {
+	return e.changedTouches ? e.changedTouches[0] : e;
+}
+		
+function _swipeMainFunc(move, end) {
+	return (function(e) {
+		if (!isSmallscreen())
+			return;
+		let t = _getTouchEvent(e);
+		if (t.clientX > 16)
+			return;
+		
+		function _handlemove(e) {
+			let t = _getTouchEvent(e);
+			if (t.clientX > window.innerWidth)
+				return;
+			let x = t.clientX - window.innerWidth;
+			channels_menu.style.transitionDuration = '0ms';
+			channels_menu.style.transform = 'translate3d(' + x + 'px, 0, 0)';
+		}
+		
+		function _handleup(e) {
+			let t = _getTouchEvent(e);
+			channels_menu.style.transitionDuration = '200ms';
+			channels_menu.style.transform = null;
+			iptv_player.classList.toggle('menuopen', t.clientX / window.innerWidth >= 0.3);
+			document.removeEventListener(move, _handlemove);
+			document.removeEventListener(end, _handleup);	
+		}
+		
+		document.addEventListener(move, _handlemove);
+		document.addEventListener(end, _handleup);
+	});
+}
 
-var MENU_MIN_DRAG = 50;
+function _swipeSidebarFunc(move, end) {
+	return (function(e) {
+		if (!isSmallscreen())
+			return;
+		let t = _getTouchEvent(e);
+		let x = 0;
+		let initX = t.clientX;
+		let unlocked = false;
+		const unlockline = window.innerWidth / 4;
+		
+		function _handlemove(e) {
+			let t = _getTouchEvent(e);
+			x = t.clientX - initX;
+			unlocked = x < -unlockline;
+			if (x > 0 || !unlocked)
+				return;
+			channels_menu.style.transitionDuration = '0ms';
+			channels_menu.style.transform = 'translate3d(' + x + 'px, 0, 0)';
+		}
+		
+		function _handleup(e) {
+			channels_menu.style.transitionDuration = '200ms';
+			channels_menu.style.transform = null;
+			iptv_player.classList.toggle('menuopen', x / window.innerWidth > -0.3);
+			document.removeEventListener(move, _handlemove);
+			document.removeEventListener(end, _handleup);	
+		}
+		
+		document.addEventListener(move, _handlemove);
+		document.addEventListener(end, _handleup);
+	});
+}
 
-document.addEventListener('mousedown', function(e) {
-	if (!isSmallscreen()) 
-		return;
-	
-	var initXpos = e.clientX;
-	var _mouseUpFunc = function(e) {
-		if (Math.abs(initXpos - e.clientX) > MENU_MIN_DRAG)
-			document.body.classList.toggle('menuopen', initXpos < e.clientX);
-		document.removeEventListener('mouseup', _mouseUpFunc);
-	};
-	document.addEventListener('mouseup', _mouseUpFunc);
-});
-
-document.addEventListener('touchstart', function(e) {
-	if (!isSmallscreen()) 
-		return;
-
-	var initXpos = e.touches[0].clientX;
-	var _touchendFunc = function(e) {
-		if (Math.abs(initXpos - e.changedTouches[0].clientX) > MENU_MIN_DRAG)
-			document.body.classList.toggle('menuopen', initXpos < e.changedTouches[0].clientX);
-		document.removeEventListener('touchend', _touchendFunc);
-	};
-	document.addEventListener('touchend', _touchendFunc);
-});
+channels_menu.addEventListener('mousedown', _swipeSidebarFunc('mousemove', 'mouseup'));
+channels_menu.addEventListener('touchstart', _swipeSidebarFunc('touchmove', 'touchend'));
+iptv_player.addEventListener('mousedown', _swipeMainFunc('mousemove', 'mouseup'));
+iptv_player.addEventListener('touchstart', _swipeMainFunc('touchmove', 'touchend'));
 
 var FLASH_CNTRL_TIME = 2500;
 var opencontrolshndle = null;
@@ -161,11 +181,11 @@ videocontrolslayer.addEventListener('mousemove', function(e) {
 });
 
 function isMenuopen() {
-	return document.body.classList.contains('menuopen');
+	return iptv_player.classList.contains('menuopen');
 }
 
 function toggleMenu() {
-	if (document.body.classList.toggle('menuopen')) {
+	if (iptv_player.classList.toggle('menuopen')) {
 		highlightChannel(current_channel);
 	}
 }
@@ -239,7 +259,7 @@ function setChannel(id=0, ignore=false) {
 			.then(function() { 
 				videoElement.play();
 				if (isSmallscreen()) {
-					document.body.classList.remove('menuopen');
+					iptv_player.classList.remove('menuopen');
 				}
 			})
 			.catch(function(error) { 
@@ -396,13 +416,13 @@ document.addEventListener("keydown", function(e) {
 			break;
 		case 'ArrowRight':
 			if (isFullscreen() && !isMenuopen()) {
-				document.body.classList.add('menuopen');
+				iptv_player.classList.add('menuopen');
 				highlightChannel(current_channel);
 			}
 			break;
 		case 'ArrowLeft':
 			if (isFullscreen()) {
-				document.body.classList.remove('menuopen');
+				iptv_player.classList.remove('menuopen');
 			}
 			break;
 		case 'Enter':
