@@ -5,11 +5,9 @@
   <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online IPTV Player</title>
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-
   <section class="container">
     <header>
       <div class="top-header-left">
@@ -31,49 +29,8 @@
         </a>
       </div>
     </header>
-    <main>
-      <div class="iptv-player">
-        <div class="iptv-main">
-          <div class="iptv-controls-layer" id="videocontrolslayer">
-            <div class="iptv-header">
-              <div class="iptv-header-left">
-                <button type="button" id="togglemenu_btn" class="iptv-control-btn">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z"></path></svg>
-                </button>
-                <h1 class="iptv-title" id="channel_name"></h1>
-              </div>
-              <div class="iptv-header-right">
-                <button type="button" id="volume_btn" class="iptv-control-btn">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="volume-svg"><path d="M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm13.517 4.134l-1.416-1.416A8.978 8.978 0 0 0 21 12a8.982 8.982 0 0 0-3.304-6.968l1.42-1.42A10.976 10.976 0 0 1 23 12c0 3.223-1.386 6.122-3.594 8.134zm-3.543-3.543l-1.422-1.422A3.993 3.993 0 0 0 16 12c0-1.43-.75-2.685-1.88-3.392l1.439-1.439A5.991 5.991 0 0 1 18 12c0 1.842-.83 3.49-2.137 4.591z"></path></svg>
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"  class="volume-mute-svg"><path d="M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm14.525-4l3.536 3.536-1.414 1.414L19 13.414l-3.536 3.536-1.414-1.414L17.586 12 14.05 8.464l1.414-1.414L19 10.586l3.536-3.536 1.414 1.414L20.414 12z"></path></svg>
-                </button>
-                <button type="button" id="fullscreen_btn" class="iptv-control-btn">
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="fullscreen-svg"><path d="M16 3h6v6h-2V5h-4V3zM2 3h6v2H4v4H2V3zm18 16v-4h2v6h-6v-2h4zM4 19h4v2H2v-6h2v4z"></path></svg>
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="fullscreen-exit-svg"><path d="M18 7h4v2h-6V3h2v4zM8 9H2V7h4V3h2v6zm10 8v4h-2v-6h6v2h-4zM8 15v6H6v-4H2v-2h6z"></path></svg>
-                </button>
-              </div>
-            </div>
-            <div id="selectchannel" class="iptv-select-item sclbl"></div>
-          </div>
-          <div class="iptv-video-container">
-            <div class="video16x9">
-              <video id="video" preload="auto" nocontrols></video>
-            </div>
-          </div>
-        </div>
-        <nav class="iptv-playlist" id="channels_menu">
-          <div class="iptv-playlist-header">
-            <button type="button" class="iptv-playlist-toggle" onclick="toggleMenu()">
-              <svg viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z"></path></svg>
-            </button>
-            <span>Channels (<span id="channels_count">0</span>)</span>
-          </div>
-          <div class="iptv-playlist-empty-message" id="emptyMenuMsg" style="display: none">
-            No items registered. Click <a href="javascript:document.getElementById('settings').showModal();">settings</a> to set your playlist.
-          </div>
-          <ul class="iptv-playlist-list" id="channels_list"></ul>
-        </nav>
-      </div>
+    <main id="main">
+      <noscript>You need to enable Javascript to use IPTV player.</noscript>
     </main>
     <footer>
       <div class="footer-top">
@@ -138,7 +95,9 @@
       <button type="submit" name="uploadFile">Upload</button>
     </form>
   </dialog>
-  
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
+  <script src="./iptv-player.js"></script>
+  <script src="./m3uutils.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
