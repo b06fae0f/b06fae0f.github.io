@@ -1,379 +1,12 @@
 var starttime = performance.now();
 
-function isSmallscreen() {
-	return window.innerWidth <= 768;
-}
+const iptv = new IPTVPlayer();
+document.getElementById('main').appendChild(iptv.getPlayer());
 
-function AlertBox(msg, type='success') {
-	var d = iptv_player.appendChild(document.createElement('div'));
-	d.classList.add('alert', type);
-	d.addEventListener('transitionend', function(e) {
-		if (e.target.classList.contains('show')) {
-			setTimeout(function() {
-				e.target.classList.remove('show');
-			}, 5000);
-		} else {
-			e.target.remove();
-		}
-	});
-	
-	var s = d.appendChild(document.createElement('span'));
-	s.innerText = msg;
-	
-	var a = d.appendChild(document.createElement('a'));
-	a.classList.add('alert-close');
-	a.href = 'javascript:void(0)';
-	a.innerHTML = '&times;';
-	a.addEventListener('click', function() {
-		d.classList.remove('show');
-	});
-
-	setTimeout(function() {
-		d.classList.add('show');
-	}, 16.666);
-}
-
-var videoElement = document.getElementById('video');
-var volumebtn = document.getElementById('volume_btn');
-
-volumebtn.addEventListener('click', function(e) {
-	if (false === videoElement.muted && videoElement.volume == 0) {
-		videoElement.volume = 1;
-	} else {
-		videoElement.muted = !videoElement.muted;
-	}
-});
-
-videoElement.addEventListener('volumechange', function(e) {
-	volumebtn.classList.toggle('muted', e.target.muted || e.target.volume == 0);
-});
-
-var videoUnmuted = false;
-videoElement.muted = true;
-volumebtn.classList.toggle('muted', videoElement.muted);
-
-var player = new shaka.Player();
-player.attach(videoElement);
-player.addEventListener('loading', function() { console.log('Loading stream...'); });
-player.addEventListener('loaded', function() { console.log('Stream is loaded!'); });
-
-var iptv_player = document.getElementsByClassName('iptv-player')[0];
-var channels_menu = document.getElementById('channels_menu');
-
-function toggleFullscreen() {
-	!document.fullscreen ? iptv_player.requestFullscreen() : document.exitFullscreen();	
-}
-
-function isFullscreen() {
-	return iptv_player.classList.contains('fs');
-}
-
-document.addEventListener('fullscreenchange', function(e) {
-	if (![null, iptv_player].includes(document.fullscreenElement)) {
-		document.exitFullscreen();
-		return;
-	}
-	
-	if (iptv_player.classList.toggle('fs', document.fullscreen)) {
-		channels_menu.style.display = 'none';
-		setTimeout(function() {
-			channels_menu.removeAttribute('style');
-		}, 200);
-	}
-});
-
-function _getTouchEvent(e) {
-	return e.changedTouches ? e.changedTouches[0] : e;
-}
-		
-function _swipeMainFunc(move, end) {
-	return (function(e) {
-		if (!isSmallscreen())
-			return;
-		let t = _getTouchEvent(e);
-		if (t.clientX > 16)
-			return;
-		
-		function _handlemove(e) {
-			let t = _getTouchEvent(e);
-			if (t.clientX > window.innerWidth)
-				return;
-			let x = t.clientX - window.innerWidth;
-			channels_menu.style.transitionDuration = '0ms';
-			channels_menu.style.transform = 'translate3d(' + x + 'px, 0, 0)';
-		}
-		
-		function _handleup(e) {
-			let t = _getTouchEvent(e);
-			channels_menu.style.transitionDuration = '200ms';
-			channels_menu.style.transform = null;
-			iptv_player.classList.toggle('menuopen', t.clientX / window.innerWidth >= 0.3);
-			document.removeEventListener(move, _handlemove);
-			document.removeEventListener(end, _handleup);	
-		}
-		
-		document.addEventListener(move, _handlemove);
-		document.addEventListener(end, _handleup);
-	});
-}
-
-function _swipeSidebarFunc(move, end) {
-	return (function(e) {
-		if (!isSmallscreen())
-			return;
-		let t = _getTouchEvent(e);
-		let x = 0;
-		let initX = t.clientX;
-		let unlocked = false;
-		const unlockline = window.innerWidth / 4;
-		
-		function _handlemove(e) {
-			let t = _getTouchEvent(e);
-			x = t.clientX - initX;
-			unlocked = x < -unlockline;
-			if (x > 0 || !unlocked)
-				return;
-			channels_menu.style.transitionDuration = '0ms';
-			channels_menu.style.transform = 'translate3d(' + x + 'px, 0, 0)';
-		}
-		
-		function _handleup(e) {
-			channels_menu.style.transitionDuration = '200ms';
-			channels_menu.style.transform = null;
-			iptv_player.classList.toggle('menuopen', x / window.innerWidth > -0.3);
-			document.removeEventListener(move, _handlemove);
-			document.removeEventListener(end, _handleup);	
-		}
-		
-		document.addEventListener(move, _handlemove);
-		document.addEventListener(end, _handleup);
-	});
-}
-
-channels_menu.addEventListener('mousedown', _swipeSidebarFunc('mousemove', 'mouseup'));
-channels_menu.addEventListener('touchstart', _swipeSidebarFunc('touchmove', 'touchend'));
-iptv_player.addEventListener('mousedown', _swipeMainFunc('mousemove', 'mouseup'));
-iptv_player.addEventListener('touchstart', _swipeMainFunc('touchmove', 'touchend'));
-
-var FLASH_CNTRL_TIME = 2500;
-var opencontrolshndle = null;
-var videocontrolslayer = document.getElementById('videocontrolslayer');
-
-function flashcontrolsheader() {
-	videocontrolslayer.classList.add('open');
-	
-	if (null !== opencontrolshndle) {
-		clearTimeout(opencontrolshndle);
-	}
-	
-	opencontrolshndle = setTimeout(function(e) {
-		videocontrolslayer.classList.remove('open');
-		opencontrolshndle = null;
-	}, FLASH_CNTRL_TIME);
-}
-
-videocontrolslayer.addEventListener('mousemove', function(e) {
-	if (!isFullscreen()) {
-		return;
-	}
-	
-	flashcontrolsheader();
-});
-
-function isMenuopen() {
-	return iptv_player.classList.contains('menuopen');
-}
-
-function toggleMenu() {
-	if (iptv_player.classList.toggle('menuopen')) {
-		highlightChannel(current_channel);
-	}
-}
-
-document.getElementById('fullscreen_btn').onclick = toggleFullscreen;
-document.getElementById('togglemenu_btn').onclick = toggleMenu;
-
-var channels = [];
-var channel_items = document.getElementsByClassName('channelItem');
-var current_channel = parseInt(localStorage.getItem('CurrentChannel')) || 0;
-var highlight_channel = current_channel;
-
-function highlightChannel(id=0, ignore=false) {
-	if (!channels.length) {
-		return;
-	}
-	
-	if (ignore && (id < 0 || id > channels.length - 1)) {
-		return;
-	}
-	
-	if (id < 0) {
-		id = channels.length - 1;
-	} else if (id > channels.length - 1) {
-		id = 0;
-	}
-	
-	if (channel_items.item(highlight_channel)) {
-		channel_items.item(highlight_channel).classList.remove('highlight');
-	}
-	
-	channel_items.item(id).classList.add('highlight');
-	channel_items.item(id).focus();
-	highlight_channel = id;
-}
-
-var channel_name = document.getElementById('channel_name');
-var playerloading = false;
-
-function setChannel(id=0, ignore=false) {
-	if (!channels.length) {
-		return;
-	}
-	
-	if (ignore && (id < 0 || id > channels.length - 1)) {
-		return;
-	}
-	
-	if (id < 0) {
-		id = channels.length - 1;
-	} else if (id > channels.length - 1) {
-		id = 0;
-	}
-	
-	channel_name.innerText = channels[id].title;
-	
-	if (channel_items.item(current_channel)) {
-		channel_items.item(current_channel).classList.remove('active');
-	}
-	
-	channel_items.item(id).classList.add('active');
-	current_channel = id;
-	highlightChannel(id);
-	localStorage.setItem('CurrentChannel', id);
-	
-	if (!playerloading) {
-		playerloading = true;
-		videoElement.setAttribute('poster', channels[id].logo);
-		player.configure(channels[id].config || {});
-		player.load(channels[id].src)
-			.then(function() { 
-				videoElement.play();
-				if (isSmallscreen()) {
-					iptv_player.classList.remove('menuopen');
-				}
-			})
-			.catch(function(error) { 
-				switch (error.code) {
-					case shaka.util.Error.Code.BAD_HTTP_STATUS:
-						AlertBox('Error: Bad or unavailable URL.', 'fail');		
-						break;
-					case shaka.util.Error.Code.HTTP_ERROR:
-						AlertBox('Error: Unable to play stream due to server error or CORS policy.', 'fail');
-						break;
-					case shaka.util.Error.Code.TIMEOUT:
-						AlertBox('Error: Server took a long time to respond.', 'fail');
-						break;
-					default:
-						AlertBox('Error: ' + (error.message || error.code), 'fail');
-						console.error(error);
-						break;
-				}
-				
-			})
-			.finally(function() { playerloading = false; });
-	}
-}
-
-var listObserver = null;
-var channels_list = document.getElementById('channels_list');
-var channels_count = document.getElementById('channels_count');
-var emptyMenuMsg = document.getElementById('emptyMenuMsg');
-
-function displayChannels() {
-	channels_list.innerHTML = '';
-	channels_count.innerText = channels.length;
-	
-	if (listObserver && typeof listObserver.disconnect === 'function') {
-		listObserver.disconnect();
-	}
-	
-	var listObserverOptions = {
-		root: null,
-		rootMargin: '0px',
-		threshold: 0.5
-	};
-	
-	listObserver = new IntersectionObserver(function(entries, observer) {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-				entry.target.onload = function(e) {
-					e.target.classList.remove('hidden');	
-				};
-				entry.target.src = entry.target.dataset.src;
-				observer.unobserve(entry.target);
-			}
-		});
-	}, listObserverOptions);
-	
-	if (channels.length) {
-		emptyMenuMsg.style.display = 'none';
-	
-		for (var i = 0; i < channels.length; ++i) {
-			var li = channels_list.appendChild(document.createElement('li'));
-			li.id = 'channel_item_' + i;
-			
-			var a = li.appendChild(document.createElement('a'));
-			a.href = 'javascript:void(0);';
-			a.classList.add('channelItem');
-			a.dataset.id = i;
-			a.title = channels[i].title;
-			a.addEventListener('click', function(e) {
-				if (e.pointerId !== -1) {
-					setChannel(parseInt(e.target.dataset.id));
-				}
-				if (!videoUnmuted && videoElement.muted) {
-					videoElement.muted = false;
-					videoUnmuted = true;
-				}
-			});
-			a.addEventListener('mouseover', function(e) {
-				highlightChannel(parseInt(e.target.dataset.id));
-			});
-			
-			var ch = a.appendChild(document.createElement('span'));
-			ch.className = 'chnum';
-			ch.innerText = i + 1;
-			
-			var ns = a.appendChild(document.createElement('span'));
-			ns.className = 'chname';
-			ns.innerText = channels[i].title;
-			
-			var ls = a.appendChild(document.createElement('span'));
-			ls.classList.add('logo');
-			if (channels[i].logo) {
-				var img = ls.appendChild(document.createElement('img'));
-				img.width = 60;
-				img.height = 60;
-				img.loading = 'lazy';
-				img.dataset.src = channels[i].logo;
-				img.alt = channels[i].tid + '_logo';
-				img.title = channels[i].title;
-				img.onerror = function(e) { e.target.remove(); }
-				img.classList.add('hidden');
-				listObserver.observe(img);
-			}
-		}
-	} else {
-		emptyMenuMsg.style.display = 'block';
-	}
-}
-
-var isplayerfocused = true;
-var dialogs = document.querySelectorAll('dialog');
-
+let dialogs = document.querySelectorAll('dialog');
 for (var i = 0; i < dialogs.length; ++i) {
 	dialogs[i].addEventListener('toggle', function(e) {
-		isplayerfocused = !e.target.open;
+		iptv._focused = !e.target.open;
 	});
 }
 
@@ -387,291 +20,18 @@ for (var i = 0; i < dialogCloseButtons.length; ++i) {
 	});
 }
 
-var MAX_CHANNEL_DIGITS = 5;
-var selectchannel = '';
-var selectchannelhndle = null;
-var selectchannellbl = document.getElementById('selectchannel');
-var filteredchannelslist = document.getElementById('filteredchannelslist');
-
-document.addEventListener("keydown", function(e) {
-	if (!isplayerfocused)
-		return;
-		
-	switch (e.key) {
-		case 'ArrowUp':
-			if (isFullscreen() && !isMenuopen()) {
-				setChannel(current_channel + 1);
-				flashcontrolsheader();
-			} else {
-				highlightChannel(highlight_channel - 1);
-			}
-			break;
-		case 'ArrowDown':
-			if (isFullscreen() && !isMenuopen()) {
-				setChannel(current_channel - 1);
-				flashcontrolsheader();
-			} else {
-				highlightChannel(highlight_channel + 1);
-			}
-			break;
-		case 'ArrowRight':
-			if (isFullscreen() && !isMenuopen()) {
-				iptv_player.classList.add('menuopen');
-				highlightChannel(current_channel);
-			}
-			break;
-		case 'ArrowLeft':
-			if (isFullscreen()) {
-				iptv_player.classList.remove('menuopen');
-			}
-			break;
-		case 'Enter':
-			if ((!isFullscreen() || isMenuopen()) && highlight_channel !== current_channel) {
-				setChannel(highlight_channel);
-			}
-			break;
-		case 'f':
-		case 'F':
-			toggleFullscreen();
-			break;
-		case 'm':
-		case 'M':
-			videoElement.muted = !videoElement.muted;
-			break;
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-			if (selectchannel.length === 0 && e.key === '0') {
-				break;
-			}
-			
-			if (selectchannel.length < MAX_CHANNEL_DIGITS){
-				selectchannel += e.key;
-			}
-			
-			highlightChannel(parseInt(selectchannel) - 1, true);
-			
-			var numofzeros = Math.max(0, MAX_CHANNEL_DIGITS - selectchannel.length);
-			var zeros = Array(numofzeros + 1).join('0');
-			selectchannellbl.innerText = zeros + selectchannel;
-			selectchannellbl.style.display = 'block';
-			
-			if (selectchannelhndle) {
-				clearTimeout(selectchannelhndle);
-			}
-			
-			selectchannelhndle = setTimeout(function() {
-				setChannel(parseInt(selectchannel) - 1, true);
-				selectchannellbl.style.display = 'none';
-				selectchannellbl.innerText = '';
-				selectchannelhndle = null;
-				selectchannel = '';
-			}, 2000);
-			break;
-		default:
-			//console.log(e.key);
-			break;
-	}
-});
-
-function strtoprop(str) {
-	var properties = {};
-	var j = 0;
-	var iskey = true;
-	var inquote = false;
-	var key = '';
-	var value = '';
-	while (j < str.length) {
-		var c = str[j];
-		if (c == '=' && !inquote && iskey) {
-			iskey = false;
-		} else if (c == ' ' && !inquote) {
-			if (iskey) {
-				if (key.length) {
-					properties[key] = 1;
-				}
-			} else {
-				properties[key] = value;
-			}
-			key = '';
-			value = '';
-			iskey = true;
-		} else if (c == '"') {
-			inquote = !inquote;
-		} else {
-			if (iskey) {
-				key += c;
-			} else {
-				value += c;
-			}
-		}
-		j++;
-	}
-	if (iskey) {
-		if (key.length) {
-			properties[key] = 1;
-		}
-	} else {
-		properties[key] = value;
-	}
-	
-	return properties;
-}
-
-function parsem3u(str) {
-	var lines = str.trim().split('\n');
-	
-	if (lines[0].trim() !== '#EXTM3U') {
-		throw new Error('Invalid M3U header.');
-	}
-	
-	var id = 1;
-	var title = '';
-	var runtime = '';
-	var properties = {};
-	var config = {};
-	var license_type = '';
-	var entries = [];
-	var forceSSL = location.protocol === 'https:';
-	
-	for (var i = 1; i < lines.length; ++i) {
-		var line = lines[i].trim();
-		if (line.length === 0) 
-			continue;
-		if (line.charAt(0) === '#') {
-			var endp = line.indexOf(':');
-			if (endp === -1)
-				continue;
-			var directive = line.slice(0, endp);
-			var input = line.slice(endp + 1);
-			switch (directive) {
-				case '#EXTINF':
-					var titlep = input.lastIndexOf(',');
-					if (titlep !== -1) {
-						title = input.slice(titlep + 1);
-						var info = input.slice(0, titlep);
-					} else {
-						title = '';
-						var info = input;
-					}
-					var runtimep = info.indexOf(' ');
-					if (runtimep !== -1) {
-						runtime = parseInt(info.slice(0, runtimep));
-						var propstr = info.slice(runtimep + 1);
-						properties = strtoprop(propstr);
-					} else {
-						runtime = parseInt(info);
-					}						
-					break;
-				case '#KODIPROP':
-					var propp = input.indexOf('=');
-					if (propp === -1) 
-						break;
-					var prop = input.slice(0, propp);
-					var data = input.slice(propp + 1);
-					switch (prop) {
-						case 'inputstream.adaptive.license_type':
-							license_type = data;
-							break;
-						case 'inputstream.adaptive.license_key':
-							if (!license_type) 
-								break;
-							if (data.indexOf('http') === 0) {
-								var key = data.split('|');
-								var url = key.shift();
-								config.drm = config.drm || {};
-								config.drm.servers = config.drm.servers || {};
-								config.drm.servers[license_type] = url;
-								if (key.length) {
-									config.drm.advanced = config.drm.advanced || {};
-									config.drm.advanced[license_type] = config.drm.advanced[license_type] || {};
-									config.drm.advanced[license_type].headers = {};
-									for (var j = 0; j < key.length; ++j) {
-										var h = key[j].split('=');
-										config.drm.advanced[license_type].headers[h[0]] = h[1] || ''; 
-									}
-								}
-							} else if (data.indexOf(':') !== -1 && license_type === 'org.w3.clearkey') {
-								var key = data.split(':');
-								config.drm = config.drm || {};
-								config.drm.clearKeys = config.drm.clearKeys || {};
-								config.drm.clearKeys[key[0]] = key[1] || '';
-							}
-							break;
-					}
-					break;
-			}
-		} else {
-			var src = line;
-			if (forceSSL) {
-				src = src.replace(/^http:/, 'https:');
-			}
-			
-			var entry = {
-				id: id++,
-				tid: properties['tvg-id'] || '',
-				title: title,
-				logo: properties['tvg-logo'] || '',
-				group: (properties['group-title'] || '').split(';'),
-				src: encodeURI(src),
-				config: config
-			};
-			
-			title = '';
-			runtime = '';
-			properties = {};
-			config = {};
-			license_type = '';
-			entries.push(entry);
-		}
-	}
-	
-	return entries;
-}
-
-function loadm3u(loc, cb) {
-	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = function() {
-		if (this.readyState == 4) {
-			switch (this.status) {
-				case 200:
-					cb(parsem3u(this.responseText));
-					break;
-				case 403:
-					AlertBox('You don\'t have permission to access this file.', 'fail');
-					break;
-				case 404:
-					AlertBox('M3U file not found.', 'fail');
-					break;
-				default:
-					console.error('Loading M3U file returned %d status code.', this.status);
-					break;
-			}
-		}
-	};
-	xhr.open('GET', loc, true);
-	xhr.send();
-}
-
-function DBStoreChannels() {
+function DBStorePlaylist() {
 	var DBOpenRequest = window.indexedDB.open('iptv-player', 1);
 
 	DBOpenRequest.onsuccess = function(e) {
 		db = e.target.result;
-		var transaction = db.transaction('channels', 'readwrite');
-		var objectStore = transaction.objectStore('channels');
+		var transaction = db.transaction('playlist', 'readwrite');
+		var objectStore = transaction.objectStore('playlist');
 		var objectStoreRequest = objectStore.clear();
 	
 		objectStoreRequest.onsuccess = function(e) {
-			for (var i = 0; i < channels.length; ++i) {
-				objectStore.put(channels[i]);
+			for (var i = 0; i < iptv.items.length; ++i) {
+				objectStore.put(iptv.items[i]);
 			}
 		};
 		
@@ -697,16 +57,19 @@ document.settingsForm.addEventListener('submit', function(e) {
 			} else if (upd < 0 || upd > 4) {
 				console.error('Invalid update time.');
 			} else {
-				loadm3u(url, function(result) {
-					console.log('fetching new playlist.');
-					channels = result;
-					displayChannels();
-					setChannel();
-					DBStoreChannels();				
-					localStorage.setItem('PlaylistURL', url);
-					localStorage.setItem('PlaylistUpdateInterval', upd);
-					localStorage.setItem('PlaylistLastUpdateTime', (new Date()).toUTCString());
-					document.getElementById('settings').close();
+				m3uutils.load(url, function(result, error) {
+					if (!error) {
+						console.log('fetching new playlist.');
+						iptv.setItems(result);
+						iptv.setItem();
+						DBStorePlaylist();				
+						localStorage.setItem('PlaylistURL', url);
+						localStorage.setItem('PlaylistUpdateInterval', upd);
+						localStorage.setItem('PlaylistLastUpdateTime', (new Date()).toUTCString());
+						document.getElementById('settings').close();
+					} else {
+						iptv._AlertBox(result.message);
+					}
 				});
 			}
 			break;
@@ -717,10 +80,9 @@ document.settingsForm.addEventListener('submit', function(e) {
 			if (file) {
 				var fr = new FileReader();
 				fr.onload = function(e) {
-					channels = parsem3u(e.target.result);
-					displayChannels();
-					setChannel();
-					DBStoreChannels();
+					iptv.setItems(m3uutils.parse(e.target.result));
+					iptv.setItem();
+					DBStorePlaylist();
 					localStorage.removeItem('PlaylistURL');
 					localStorage.removeItem('PlaylistUpdateInterval');
 					localStorage.removeItem('PlaylistLastUpdateTime');
@@ -745,8 +107,8 @@ if (window.indexedDB) {
 	DBOpenRequest.onupgradeneeded = function(e) {
 		var db = e.target.result;
 		
-		if (!db.objectStoreNames.contains('channels')) {
-			var objectStore = db.createObjectStore('channels', { keyPath: 'id' });
+		if (!db.objectStoreNames.contains('playlist')) {
+			var objectStore = db.createObjectStore('playlist', { keyPath: 'id' });
 			
 			objectStore.createIndex('tid', 'tid', { unique: false });
 			objectStore.createIndex('title', 'title', { unique: false });
@@ -800,38 +162,40 @@ if (window.indexedDB) {
 		})();
 		
 		if (playlistUpdate) {
-			loadm3u(playlistUrl, function(result) {
-				console.log('updating database channels.');
-				channels = result;
-				displayChannels();
-				setChannel(current_channel);
-				
-				var transaction = db.transaction('channels', 'readwrite');
-				var objectStore = transaction.objectStore('channels');
-				var objectStoreRequest = objectStore.clear();
-				
-				objectStoreRequest.onsuccess = function(e) {
-					for (var i = 0; i < channels.length; ++i) {
-						objectStore.put(channels[i]);
-					}
-				};
-							
-				transaction.oncomplete = function() {
-					db.close();
-				};
-
-				localStorage.setItem('PlaylistLastUpdateTime', currentTime.toUTCString());
+			m3uutils.load(playlistUrl, function(result, error) {
+				if (!error) {
+					console.log('updating database playlist.');
+					iptv.setItems(result);
+					iptv.setItem(localStorage.getItem('CurrentItem'));
+					
+					var transaction = db.transaction('playlist', 'readwrite');
+					var objectStore = transaction.objectStore('playlist');
+					var objectStoreRequest = objectStore.clear();
+					
+					objectStoreRequest.onsuccess = function(e) {
+						for (var i = 0; i < iptv.items.length; ++i) {
+							objectStore.put(iptv.items[i]);
+						}
+					};
+					
+					transaction.oncomplete = function() {
+						db.close();
+					};
+					
+					localStorage.setItem('PlaylistLastUpdateTime', currentTime.toUTCString());
+				} else {
+					iptv._AlertBox(result.message);
+				}
 			});
 		} else {
-			console.log('fetching channels from database.');
-			var transaction = db.transaction('channels', 'readonly');
-			var objectStore = transaction.objectStore('channels');
+			console.log('fetching playlist from database.');
+			var transaction = db.transaction('playlist', 'readonly');
+			var objectStore = transaction.objectStore('playlist');
 			var objectStoreRequest = objectStore.getAll();
 
 			objectStoreRequest.onsuccess = function(e) {
-				channels = e.target.result;
-				displayChannels();
-				setChannel(current_channel);
+				iptv.setItems(e.target.result);
+				iptv.setItem(localStorage.getItem('CurrentItem'));
 			};
 				
 			transaction.oncomplete = function() {
