@@ -37,4 +37,6 @@ document.settingsForm.addEventListener('submit', (e) => {
 	}
 });
 
+document.getElementById('version').innerText = IptvPlayer.version;
+
 console.log('app.js took %f ms to complete.', (performance.now() - starttime).toFixed(3));
