@@ -21,24 +21,24 @@ HtmlComponent.prototype.setAttributesRec = function(el, attr) {
 };
 
 HtmlComponent.prototype.createHtmlRec = function(component) {
-	if (typeof component !== 'object' || Array.isArray(component) || !component.type)
+	if (typeof component !== 'object' || Array.isArray(component) || !component.tag)
 		return null;
 		
 	if (component.remove)
 		return null;
 	
 	let element = component.namespace ?
-		document.createElementNS(component.namespace, component.type) : 
-		document.createElement(component.type);
+		document.createElementNS(component.namespace, component.tag) : 
+		document.createElement(component.tag);
 	
-	if (component.actions && Array.isArray(component.actions))
-		for (_ of component.actions)
+	if (component.func && Array.isArray(component.func))
+		for (_ of component.func)
 			if (typeof _ === 'object' && _ !== null && !Array.isArray(_))
 				if (_.fn && typeof _.fn === 'string' && _.args && Array.isArray(_.args))
 					element[_.fn].apply(element, _.args);
 	
-	if (component.attributes)
-		this.setAttributesRec(element, component.attributes);
+	if (component.attr)
+		this.setAttributesRec(element, component.attr);
 	
 	if (component.children && Array.isArray(component.children))
 		for (_ of component.children) {
@@ -101,7 +101,7 @@ M3UParser.strtoprop = function(str) {
 M3UParser.parse = function(str) {
 	var lines = str.trim().split('\n');
 	
-	if (lines[0].trim() !== '#EXTM3U') {
+	if (lines[0].indexOf('#EXTM3U') !== 0) {
 		throw new Error('Invalid M3U header.');
 	}
 	
@@ -210,8 +210,8 @@ M3UParser.parse = function(str) {
 function AlertBox(message) {
 	HtmlComponent.call(this, {
 		name: 'alert',
-		type: 'div',
-		attributes: {
+		tag: 'div',
+		attr: {
 			className: 'alert',
 			ontransitionend: (e) => {
 				if (e.target.classList.contains('show'))
@@ -222,12 +222,12 @@ function AlertBox(message) {
 		},
 		children: [
 			{
-				type: 'span',
-				attributes: { innerText: message }
+				tag: 'span',
+				attr: { innerText: message }
 			},
 			{
-				type: 'a',
-				attributes: {
+				tag: 'a',
+				attr: {
 					className: 'alert-close',
 					href: 'javascript:void(0)',
 					innerHTML: '&times;',
@@ -250,12 +250,12 @@ Object.defineProperty(AlertBox, 'visible_duration', { value: 5000 });
 function IptvPlaylistItem(id, data, player, observer) {
 	HtmlComponent.call(this, {
 		name: 'item',
-		type: 'li',
+		tag: 'li',
 		children: [
 			{
 				name: 'link',
-				type: 'a',
-				attributes: {
+				tag: 'a',
+				attr: {
 					title: data.title,
 					href: 'javascript:void(0)',
 					onclick: (e) => {
@@ -268,28 +268,28 @@ function IptvPlaylistItem(id, data, player, observer) {
 				},
 				children: [
 					{
-						type: 'span',
-						attributes: { 
+						tag: 'span',
+						attr: { 
 							className: 'chnum' ,
 							innerText: id + 1
 						}
 					},
 					{
-						type: 'span',
-						attributes: { 
+						tag: 'span',
+						attr: { 
 							className: 'chname' ,
 							innerText: data.title
 						}
 					},
 					{
-						type: 'span',
-						attributes: { className: 'logo' },
+						tag: 'span',
+						attr: { className: 'logo' },
 						children: [
 							{
 								name: 'logo',
-								type: 'img',
+								tag: 'img',
 								remove: !data.logo,
-								attributes: {
+								attr: {
 									width: 60,
 									height: 60,
 									loading: 'lazy',
@@ -344,28 +344,28 @@ IptvPlaylistItem.prototype.play = function() {
 function IptvPlaylist(player) {
 	HtmlComponent.call(this, {
 		name: 'playlist',
-		type: 'div',
-		attributes: { className: 'iptv-playlist' },
+		tag: 'div',
+		attr: { className: 'iptv-playlist' },
 		children: [
 			{
 				name: 'header',
-				type: 'div',
-				attributes: { className: 'iptv-playlist-header' },
+				tag: 'div',
+				attr: { className: 'iptv-playlist-header' },
 				children: [
 					{
 						name: 'togglePlaylistBtn',
-						type: 'button',
-						attributes: { 
+						tag: 'button',
+						attr: { 
 							onclick: e => this.toggle(),
 							className: 'iptv-playlist-toggle', 
-							type: 'button' 
+							tag: 'button' 
 						},
 						children: [
 							{
-								type: 'svg',
+								tag: 'svg',
 								namespace: 'http://www.w3.org/2000/svg',
-								attributes: { width: 16, height: 16 },
-								actions: [
+								attr: { width: 16, height: 16 },
+								func: [
 									{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 									{ fn: 'setAttribute', args: ['width', 16] },
 									{ fn: 'setAttribute', args: ['height', 16] },
@@ -373,9 +373,9 @@ function IptvPlaylist(player) {
 								],
 								children: [
 									{
-										type: 'path',
+										tag: 'path',
 										namespace: 'http://www.w3.org/2000/svg',
-										actions: [ 
+										func: [ 
 											{ 
 												fn: 'setAttribute', 
 												args: ['d', 'M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z']
@@ -387,20 +387,20 @@ function IptvPlaylist(player) {
 						]
 					},
 					{
-						type: 'span',
-						attributes: { innerText: 'Playlist' }
+						tag: 'span',
+						attr: { innerText: 'Playlist' }
 					},
 					{
 						name: 'count',
-						type: 'span',
-						attributes: { innerText: '(0)' }
+						tag: 'span',
+						attr: { innerText: '(0)' }
 					}
 				]
 			},
 			{
 				name: 'emptyMessage',
-				type: 'div',
-				attributes: { 
+				tag: 'div',
+				attr: { 
 					innerHTML: 'No Items Found.', 
 					className: 'iptv-playlist-empty-message',
 					style: { display: 'none' }
@@ -408,8 +408,8 @@ function IptvPlaylist(player) {
 			},
 			{
 				name: 'list',
-				type: 'ul',
-				attributes: { className: 'iptv-playlist-list' }
+				tag: 'ul',
+				attr: { className: 'iptv-playlist-list' }
 			}
 		]
 	});
@@ -578,48 +578,48 @@ IptvPlaylist.prototype._swipeSidebarFunc = function(move, end) {
 function IptvMain(player) {
 	HtmlComponent.call(this, {
 		name: 'main',
-		type: 'div',
-		attributes: { className: 'iptv-main muted'},
+		tag: 'div',
+		attr: { className: 'iptv-main muted'},
 		children: [
 			{
 				name: 'controlsLayer',
-				type: 'div',
-				attributes: { 
+				tag: 'div',
+				attr: { 
 					onmousemove: e => this.onControlsLayerHover(e),
 					className: 'iptv-controls-layer' 
 				},
 				children: [
 					{
 						name: 'header',
-						type: 'div',
-						attributes: { className: 'iptv-header' },
+						tag: 'div',
+						attr: { className: 'iptv-header' },
 						children: [
 							{
 								name: 'headerLeft',
-								type: 'div',
-								attributes: { className: 'iptv-header-left' },
+								tag: 'div',
+								attr: { className: 'iptv-header-left' },
 								children: [
 									{
 										name: 'togglePlaylistBtn',
-										type: 'button',
-										attributes: { 
+										tag: 'button',
+										attr: { 
 											onclick: e => this.player.playlist.toggle(e),
 											className: 'iptv-control-btn toggle-list-btn', 
-											type: 'button' 
+											tag: 'button' 
 										},
 										children: [
 											{
-												type: 'svg',
+												tag: 'svg',
 												namespace: 'http://www.w3.org/2000/svg',
-												actions: [
+												func: [
 													{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 													{ fn: 'setAttribute', args: ['fill', 'currentColor'] }
 												],
 												children: [
 													{
-														type: 'path',
+														tag: 'path',
 														namespace: 'http://www.w3.org/2000/svg',
-														actions: [{ fn: 'setAttribute', args: ['d', 'M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z'] }]
+														func: [{ fn: 'setAttribute', args: ['d', 'M22 12.999V20a1 1 0 0 1-1 1h-8v-8.001h9zm-11 0V21H3a1 1 0 0 1-1-1v-7.001h9zM11 3v7.999H2V4a1 1 0 0 1 1-1h8zm10 0a1 1 0 0 1 1 1v6.999h-9V3h8z'] }]
 													}
 												]
 											}
@@ -627,52 +627,52 @@ function IptvMain(player) {
 									},
 									{
 										name: 'title',
-										type: 'h1',
-										attributes: { className: 'iptv-title' }
+										tag: 'h1',
+										attr: { className: 'iptv-title' }
 									}
 								]
 							},
 							{
 								name: 'headerRight',
-								type: 'div',
-								attributes: { className: 'iptv-header-right' },
+								tag: 'div',
+								attr: { className: 'iptv-header-right' },
 								children: [
 									{
 										name: 'muteBtn',
-										type: 'button',
-										attributes: { 
+										tag: 'button',
+										attr: { 
 											onclick: e => this.toggleMute(e),
 											className: 'iptv-control-btn mute-btn', 
-											type: 'button' 
+											tag: 'button' 
 										},
 										children: [
 											{
-												type: 'svg',
+												tag: 'svg',
 												namespace: 'http://www.w3.org/2000/svg',
-												actions: [
+												func: [
 													{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 													{ fn: 'setAttribute', args: ['fill', 'currentColor'] }
 												],
 												children: [
 													{
-														type: 'path',
+														tag: 'path',
 														namespace: 'http://www.w3.org/2000/svg',
-														actions: [{ fn: 'setAttribute', args: ['d', 'M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm13.517 4.134l-1.416-1.416A8.978 8.978 0 0 0 21 12a8.982 8.982 0 0 0-3.304-6.968l1.42-1.42A10.976 10.976 0 0 1 23 12c0 3.223-1.386 6.122-3.594 8.134zm-3.543-3.543l-1.422-1.422A3.993 3.993 0 0 0 16 12c0-1.43-.75-2.685-1.88-3.392l1.439-1.439A5.991 5.991 0 0 1 18 12c0 1.842-.83 3.49-2.137 4.591z'] }]
+														func: [{ fn: 'setAttribute', args: ['d', 'M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm13.517 4.134l-1.416-1.416A8.978 8.978 0 0 0 21 12a8.982 8.982 0 0 0-3.304-6.968l1.42-1.42A10.976 10.976 0 0 1 23 12c0 3.223-1.386 6.122-3.594 8.134zm-3.543-3.543l-1.422-1.422A3.993 3.993 0 0 0 16 12c0-1.43-.75-2.685-1.88-3.392l1.439-1.439A5.991 5.991 0 0 1 18 12c0 1.842-.83 3.49-2.137 4.591z'] }]
 													}
 												]
 											},
 											{
-												type: 'svg',
+												tag: 'svg',
 												namespace: 'http://www.w3.org/2000/svg',
-												actions: [
+												func: [
 													{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 													{ fn: 'setAttribute', args: ['fill', 'currentColor'] }
 												],
 												children: [
 													{
-														type: 'path',
+														tag: 'path',
 														namespace: 'http://www.w3.org/2000/svg',
-														actions: [{ fn: 'setAttribute', args: ['d', 'M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm14.525-4l3.536 3.536-1.414 1.414L19 13.414l-3.536 3.536-1.414-1.414L17.586 12 14.05 8.464l1.414-1.414L19 10.586l3.536-3.536 1.414 1.414L20.414 12z'] }]
+														func: [{ fn: 'setAttribute', args: ['d', 'M5.889 16H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3.889l5.294-4.332a.5.5 0 0 1 .817.387v15.89a.5.5 0 0 1-.817.387L5.89 16zm14.525-4l3.536 3.536-1.414 1.414L19 13.414l-3.536 3.536-1.414-1.414L17.586 12 14.05 8.464l1.414-1.414L19 10.586l3.536-3.536 1.414 1.414L20.414 12z'] }]
 													}
 												]
 											}
@@ -680,40 +680,40 @@ function IptvMain(player) {
 									},
 									{
 										name: 'fullscreenBtn',
-										type: 'button',
-										attributes: { 
+										tag: 'button',
+										attr: { 
 											onclick: e => this.player.toggleFullscreen(e),
 											className: 'iptv-control-btn fs-btn', 
-											type: 'button' 
+											tag: 'button' 
 										},
 										children: [
 											{
-												type: 'svg',
+												tag: 'svg',
 												namespace: 'http://www.w3.org/2000/svg',
-												actions: [
+												func: [
 													{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 													{ fn: 'setAttribute', args: ['fill', 'currentColor'] }
 												],
 												children: [
 													{
-														type: 'path',
+														tag: 'path',
 														namespace: 'http://www.w3.org/2000/svg',
-														actions: [{ fn: 'setAttribute', args: ['d', 'M16 3h6v6h-2V5h-4V3zM2 3h6v2H4v4H2V3zm18 16v-4h2v6h-6v-2h4zM4 19h4v2H2v-6h2v4z'] }]
+														func: [{ fn: 'setAttribute', args: ['d', 'M16 3h6v6h-2V5h-4V3zM2 3h6v2H4v4H2V3zm18 16v-4h2v6h-6v-2h4zM4 19h4v2H2v-6h2v4z'] }]
 													}
 												]
 											},
 											{
-												type: 'svg',
+												tag: 'svg',
 												namespace: 'http://www.w3.org/2000/svg',
-												actions: [
+												func: [
 													{ fn: 'setAttributeNS', args: [null, 'viewBox', '0 0 24 24'] },
 													{ fn: 'setAttribute', args: ['fill', 'currentColor'] }
 												],
 												children: [
 													{
-														type: 'path',
+														tag: 'path',
 														namespace: 'http://www.w3.org/2000/svg',
-														actions: [{ fn: 'setAttribute', args: ['d', 'M18 7h4v2h-6V3h2v4zM8 9H2V7h4V3h2v6zm10 8v4h-2v-6h6v2h-4zM8 15v6H6v-4H2v-2h6z'] }]
+														func: [{ fn: 'setAttribute', args: ['d', 'M18 7h4v2h-6V3h2v4zM8 9H2V7h4V3h2v6zm10 8v4h-2v-6h6v2h-4zM8 15v6H6v-4H2v-2h6z'] }]
 													}
 												]
 											}
@@ -725,32 +725,31 @@ function IptvMain(player) {
 					},
 					{
 						name: 'selectItem',
-						type: 'div',
-						attributes: { className: 'iptv-select-item' }
+						tag: 'div',
+						attr: { className: 'iptv-select-item' }
 					}
 				]
 			},
 			{
 				name: 'videoContainer',
-				type: 'div',
-				attributes: { className: 'iptv-video-container' },
+				tag: 'div',
+				attr: { className: 'iptv-video-container' },
 				children: [
 					{
 						name: 'video16x9',
-						type: 'div',
-						attributes: { className: 'video16x9' },
+						tag: 'div',
+						attr: { className: 'video16x9' },
 						children: [
 							{
 								name: 'video',
-								type: 'video',
-								attributes: { 
+								tag: 'video',
+								attr: { 
 									onvolumechange: e => this.volumeChange(e),
-									muted: true 
-								},
-								actions: [
-									{ fn: 'setAttribute', args: ['preload', 'auto'] },
-									{ fn: 'setAttribute', args: ['nocontrols', ''] }
-								]
+									controls: false,
+									preload: 'auto',
+									autoplay: 'autoplay',
+									muted: true,
+								}
 							}
 						]
 					}
@@ -844,8 +843,8 @@ IptvMain.prototype.play = async function(item) {
 function IptvPlayer() {
 	HtmlComponent.call(this, {
 		name: 'player',
-		type: 'div',
-		attributes: { 
+		tag: 'div',
+		attr: { 
 			className: 'iptv-player',
 			style: { height: '100%' }
 		},
@@ -928,7 +927,7 @@ IptvPlayer.prototype.isPlaylistUpdateNeeded = function() {
 IptvPlayer.prototype.loadPlaylistFromText = function(text) {
 	const items = M3UParser.parse(text);
 	this.playlist.setItems(items);
-	this.playlist.getItem(0).play();
+	this.playlist.getItem(0)?.play();
 	this.storePlaylist(items);
 };
 
@@ -956,8 +955,8 @@ IptvPlayer.prototype.loadURL = async function(url, callback) {
 			
 		const response = await fetch(url);
 		
-		if (!response.ok)
-			throw new Error(`Error ${response.status}: ${response.statusText}.`);
+		if (!response.ok) { console.log(response);
+			throw new Error(`Error ${response.status}: ${response.statusText}.`); }
 		
 		const result = await response.text();
 		this.loadPlaylistFromText(result);
@@ -1049,6 +1048,30 @@ IptvPlayer.prototype.prepareIndexedDB = function() {
 	};
 };
 
+IptvPlayer.prototype.updateSelectItem = function(digit) {
+	if (this.selectItem.length === 0 && digit === '0')
+		return;
+	
+	if (this.selectItem.length < IptvPlayer.max_item_digits)
+		this.selectItem += digit;
+	else
+		return;
+	
+	this.playlist.getItem(this.selectItem - 1)?.focus();
+	this.main.showSelectItem(this.selectItem.padStart(IptvPlayer.max_item_digits, '0'));
+	
+	if (this.selectItemHandle)
+		clearTimeout(this.selectItemHandle);
+	
+	this.selectItemHandle = setTimeout(() => {
+		this.playlist.getItem(this.selectItem - 1)?.play();
+		this.main.videoFirstUnmute();
+		this.main.hideSelectItem();
+		this.selectItemHandle = null;
+		this.selectItem = '';
+	}, 2000);
+};
+
 IptvPlayer.prototype.onKeydown = function(e) {
 	if (!this.focused)
 		return;
@@ -1105,27 +1128,7 @@ IptvPlayer.prototype.onKeydown = function(e) {
 		case '7':
 		case '8':
 		case '9':
-			if (this.selectItem.length === 0 && e.key === '0')
-				break;
-			
-			if (this.selectItem.length < IptvPlayer.max_item_digits)
-				this.selectItem += e.key;
-			else
-				break;
-			
-			this.playlist.getItem(this.selectItem - 1)?.focus();
-			this.main.showSelectItem(this.selectItem.padStart(IptvPlayer.max_item_digits, '0'));
-			
-			if (this.selectItemHandle)
-				clearTimeout(this.selectItemHandle);
-			
-			this.selectItemHandle = setTimeout(() => {
-				this.playlist.getItem(this.selectItem - 1)?.play();
-				this.main.videoFirstUnmute();
-				this.main.hideSelectItem();
-				this.selectItemHandle = null;
-				this.selectItem = '';
-			}, 2000);
+			this.updateSelectItem(e.key);
 			break;
 		default:
 			//console.log(e.key);
@@ -1141,4 +1144,4 @@ IptvPlayer.prototype.alert = function(message) {
 
 Object.defineProperty(IptvPlayer, 'max_item_digits', { value: 5 });
 Object.defineProperty(IptvPlayer, 'open_cntrl_time', { value: 3000 });
-Object.defineProperty(IptvPlayer, 'version', { value: '0.1.0 Beta' });
+Object.defineProperty(IptvPlayer, 'version', { value: '0.1.1 Beta' });
