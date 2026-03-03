@@ -8,6 +8,12 @@ if (!localStorage.getItem('FirstTimeRun')) {
 	document.getElementById('settings').showModal();
 }
 
+if (window.location.search) {
+	let params = new URLSearchParams(window.location.search);
+	let url = params.get('url');
+	iptv.loadURL(url);
+}
+
 document.querySelectorAll('dialog').forEach(d => {
 	d.addEventListener('toggle', e => iptv.focused = !e.target.open);
 	d.getElementsByClassName('dialog-close')[0]?.addEventListener('click', e => d.close());
