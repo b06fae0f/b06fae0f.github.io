@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="referrer" content="no-referrer">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Online IPTV Player v2.0</title>
+        <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+            body {
+                color: white;
+                font-size: 14px;
+                font-weight: 600;
+                font-family: system-ui;
+                background-color: black;
+            }
+            .container {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100vw;
+                height: 100vh;
+                
+            }
+            .overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: transparent;
+                cursor: none;
+            }
+            .overlay.show {
+                cursor: auto;
+            }
+            .controls {
+                display: none;
+                position: absolute;
+                top: 32px;
+                right: 32px;
+                align-items: center;
+                flex-direction: row;
+                column-gap: 6px;
+            }
+            .show .controls {
+                display: flex;
+            }
+            .controls button {
+                position: relative;
+                border-radius: 50%;
+                padding: 20px;
+                cursor: pointer;
+                color: white;
+                background: transparent;
+                border: 0;
+                opacity: 0.5;
+            }
+            .controls button:hover {
+                background: rgba(0,0,0,0.5);
+                opacity: 1;
+            }
+            .controls button svg {
+                position: absolute;
+                fill: currentColor;
+                transform: translate(-50%, -50%);
+            }
+            .controls button[role="switch"][aria-checked="true"] svg:first-child,
+            .controls button[role="switch"][aria-checked="false"] svg:last-child {
+                display: none;
+            }
+            .video16x9 {
+                width: 100vw;
+                height: calc(100vw * 9 / 16);
+                max-height: 100vh;
+                max-width: calc(100vh * 16 / 9);
+            }
+            .video16x9 video {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+            .menu {
+                display: none;
+                flex-direction: column;
+                color: rgba(255,255,255,0.65);
+                position: absolute;
+                top: 32px;
+                left: 32px;
+                width: 25%;
+                height: calc(100vh - 32px * 2);
+                background-color: rgba(0,0,0,0.8);
+                border: 1px solid rgba(255,255,255,0.5);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .menu.open {
+                display: flex;
+            }
+            .menu header {
+                display: flex;
+            }
+            .menu header button {
+                padding-inline: 8px;
+                background: transparent;
+                color: #FFC107;
+                cursor: pointer;
+                border: 0;
+            }
+            .menu header button:disabled {
+                color: rgba(255,255,255,0.25);
+                cursor: initial;
+            }
+            .menu header div {
+                display: flex;
+                flex-grow: 1;
+                column-gap: 6px;
+                padding: 8px 0;
+                justify-content: center;
+                text-transform: capitalize;
+            }
+            .menu ul {
+                list-style: none;
+                overflow-y: auto;
+                height: 100%;
+                margin: 0;
+                padding: 8px;
+            }
+            .menu ul::-webkit-scrollbar {
+                display: none;
+            }
+            .menu ul a {
+                display: flex;
+                flex-direction: row;
+                padding: 8px 12px;
+                column-gap: 24px;
+                border-radius: 6px;
+                text-decoration:none;
+                color: inherit;
+                outline: none;
+            }
+            .menu ul a.active {
+                color: white;
+            }
+            .menu ul a.focus {
+                color: black;
+                background-color: #FFC107;
+            }
+            .menu ul a.hidden {
+                display: none;
+            }
+            .menu ul a span:nth-child(2) {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            .menu-msg {
+                margin: 0;
+                padding: 8px;
+                font-size: small;
+                display: none;
+            }
+            .menu-info {
+                display: flex;
+                flex-direction: row;
+                column-gap: 12px;
+                padding: 15px 8px;
+                border-top: 1px solid rgba(255,255,255,0.2);
+            }
+            .menu-info img {
+                width: 50px;
+                height: 50px;
+            }
+            .menu-info h2 {
+                font-size: 16px;
+                color: rgba(255,255,255,0.9);
+                margin: 0 0 1px 0;
+            }
+            .menu-info p {
+                font-size: 12px;
+                margin: 0;
+            }
+            .menu-info svg {
+                width: 16px;
+                height: 16px;
+                fill: currentColor;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .menu-info p.live {
+                color: crimson;
+            }
+            .menu-info p.warning {
+                color: yellow;
+            }
+            .select-item {
+                display: none;
+                font-size: 20px;
+                font-weight: bold; 
+                color: rgba(255,255,255,0.65);
+                padding: 4px;
+                position: absolute;
+                top: 32px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0,0,0,0.8);
+                border: 1px solid rgba(255,255,255,0.5);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Hidden global SVG icon registry -->
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <defs>
+                <symbol viewBox="0 0 100 100" id="icon-live">
+                    <path d="M 18.2 16.9 C -0.5 35 -0.5 65 18.2 83.1 L 24 77 C 8.8 62 8.8 38 24 23z" />
+                    <path d="M 29.8 29.0 C 18 41 18 59 29.8 71 L 35.5 65.1 C 27 57 27 43 35.5 34.9z" />
+                    <circle cx="50" cy="50" r="12.5" />
+                    <path d="M 70.5 29.0 C 82 41 82 59 70.5 71 L 64.5 65.1 C 73 57 73 43 64.5 34.9z" />
+                    <path d="M 81.8 16.9 C 100.5 35 100.5 65 81.8 83.1 L 76 77 C 91.2 62 91.2 38 76 23z" />
+                    <animate 
+                        attributeName="opacity" 
+                        values="0; 1; 0" 
+                        keyTimes="0; 0.5; 1" 
+                        dur="3s" 
+                        repeatCount="indefinite" />
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-mute">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-unmute">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-maximize">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-minimize">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                </symbol>
+            </defs>
+        </svg>
+        <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
+        <script>
+            //// M3U Parser \\\\
+            function parsem3u(text) {
+                const lineRegex = /[^\r\n]+/g;
+                const extinfAttrRegex = /([^\s=]+)=(?:"([^"]*)"|([^\s]+))/g;
+                const extinfRegex = /^([-+]?\d+)\s*((?:[^",]|"[^"]*")*),(.*)$/;
+                const forceSSL = location.protocol === 'https:';
+                
+                let playlist = [];
+                let item = {config: {}};
+                let match, line;
+                
+                if ((match = lineRegex.exec(text)) !== null) {
+                    line = match[0].trim();
+                    
+                    if (line.indexOf("#EXTM3U") !== 0) {
+                        console.error("Invalid m3u file header.");
+                        return null;
+                    }
+                }
+                
+                while ((match = lineRegex.exec(text)) !== null) {
+                    line = match[0].trim();
+                    
+                    if (!line) continue;
+                    
+                    if (line[0] === '#') {
+                        let firstColon = line.indexOf(':');
+                        
+                        if (firstColon !== -1) {
+                            let directive = line.slice(0, firstColon); 
+                            let input = line.slice(firstColon + 1);
+                        
+                            switch (directive) {
+                                case "#EXTINF":
+                                    if ((match = input.match(extinfRegex)) !== null) {
+                                        let attributes = {};
+                                        
+                                        for (let m of match[2].matchAll(extinfAttrRegex)) {
+                                            attributes[m[1]] = m[2] || m[3];
+                                        }
+                                        
+                                        item.id = attributes["tvg-id"];
+                                        item.logo = attributes["tvg-logo"];
+                                        item.runtime = parseInt(match[1]);
+                                        item.title = match[3].trim() || attributes["tvg-name"].trim() || "Unkown";
+                                        item.group = attributes["group-title"] ? attributes["group-title"].split(';') : [];
+                                    }
+                                    break;
+                                case "#KODIPROP":
+                                    let propp = input.indexOf('=');
+                                    if (propp === -1) break;
+                                    let prop = input.slice(0, propp);
+                                    let data = input.slice(propp + 1);
+                                    
+                                    switch (prop) {
+                                        case "inputstream.adaptive.license_type":
+                                            item.license_type = data;
+                                            break;
+                                        case "inputstream.adaptive.license_key":
+                                            if (!item.license_type) break;
+                                            if (data.indexOf('http') === 0) {
+                                                let [url, ...headers] = data.split('|');
+                                                item.config.drm = item.config.drm || {};
+                                                item.config.drm.servers = item.config.drm.servers || {};
+                                                item.config.drm.servers[item.license_type] = url;
+                                                if (headers.length) {
+                                                    item.config.drm.advanced = item.config.drm.advanced || {};
+                                                    item.config.drm.advanced[item.license_type] = item.config.drm.advanced[item.license_type] || {};
+                                                    item.config.drm.advanced[item.license_type].headers = {};
+                                                    for (let header of headers) {
+                                                        let [k, v] = header.split('=');
+                                                        item.config.drm.advanced[item.license_type].headers[k] = v; 
+                                                    }
+                                                }
+                                            } else if (data.indexOf(':') !== -1 && item.license_type === "org.w3.clearkey") {
+                                                let [k, v] = data.split(':');
+                                                item.config.drm = item.config.drm || {};
+                                                item.config.drm.clearKeys = item.config.drm.clearKeys || {};
+                                                item.config.drm.clearKeys[k] = v;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
+                    } else {
+                        item.src = encodeURI(forceSSL ? line.replace(/^http:/, "https:") : line);
+                        playlist.push(item);
+                        item = {config: {}};
+                    }
+                }
+                
+                return playlist;
+            }
+            
+            //// Video Player \\\\
+            const container = document.body.appendChild(document.createElement("div"));
+            const video16x9 = container.appendChild(document.createElement("div"));
+            const overlay = container.appendChild(document.createElement("div"));
+            const controls = overlay.appendChild(document.createElement("div"));
+            const muteBtn = controls.appendChild(document.createElement("button"));
+            const fsBtn = controls.appendChild(document.createElement("button"));
+            const video = video16x9.appendChild(document.createElement("video"));
+            const player = new shaka.Player();
+
+            video.volume = 1;
+            video.muted = false;
+            video.controls = false;
+            video.preload = "auto";
+            video.autoplay = "autoplay";
+            player.attach(video);
+            
+            container.className = "container";
+            video16x9.className = "video16x9";
+            overlay.className = "overlay";
+            controls.className = "controls";
+            muteBtn.setAttribute("role", "switch");
+            muteBtn.setAttribute("aria-checked", video.muted);
+            muteBtn.innerHTML = "<svg viewBox=\"0 0 24 24\"><use href='#icon-mute'></use></svg>";
+            muteBtn.innerHTML += "<svg  viewBox=\"0 0 24 24\"><use href='#icon-unmute'></use></svg>";
+            fsBtn.setAttribute("role", "switch");
+            fsBtn.setAttribute("aria-checked", false);
+            fsBtn.innerHTML = "<svg viewBox=\"0 0 24 24\"><use href='#icon-maximize'></use></svg>";
+            fsBtn.innerHTML += "<svg viewBox=\"0 0 24 24\"><use href='#icon-minimize'></use></svg>";
+            
+            function toggleMute() {
+                video.muted = !video.muted;
+            }
+            
+            video.addEventListener("volumechange", e => {
+                muteBtn.setAttribute("aria-checked", e.target.muted);
+            });
+            
+            muteBtn.addEventListener("click", e => toggleMute());
+            
+            function toggleFullscreen() {
+                if (document.fullscreenElement !== null) {
+                    document.exitFullscreen();
+                } else {
+                    container.requestFullscreen();
+                }
+            }
+            
+            document.addEventListener("fullscreenchange", e => {
+                fsBtn.setAttribute("aria-checked", document.fullscreen);
+            });
+            
+            fsBtn.addEventListener("click", e => toggleFullscreen());
+            
+            overlay.addEventListener("click", e => {
+                if (e.target !== overlay)
+                    return;
+                switch (currentState) {
+                    case states.watch:
+                        setState(states.menu);
+                        break;
+                    case states.menu:
+                        setState(states.watch);
+                        break;
+                } 
+            });
+            
+            let showControlsHandle = null;
+            overlay.addEventListener("mousemove", e => {
+                overlay.classList.add("show");
+                
+                if (showControlsHandle !== null) {
+                    clearTimeout(showControlsHandle);
+                }
+                
+                showControlsHandle = setTimeout(e => {
+                    overlay.classList.remove("show");
+                    showControlsHandle = null;
+                }, 3000);
+            });
+            
+            //// Menu \\\\
+            let itempad = 0;
+            let currentItem = null;
+            let focusedItem = null;
+            let currentGroup = 0;
+            const items = [];
+            const groups = [];
+            const menu = container.appendChild(document.createElement("aside"));
+            const menuHeader = menu.appendChild(document.createElement("header"));
+            const menuMsg = menu.appendChild(document.createElement("p"));
+            const menuList = menu.appendChild(document.createElement("ul"));
+            const menuPrevGroupBtn = menuHeader.appendChild(document.createElement("button"));
+            const menuHeaderLabel = menuHeader.appendChild(document.createElement("div"));
+            const menuNextGroupBtn = menuHeader.appendChild(document.createElement("button"));
+            const menuHeaderCountContainer = menuHeaderLabel.appendChild(document.createElement("span"));
+            const menuHeaderCount = menuHeaderCountContainer.appendChild(document.createElement("span"));
+            const menuHeaderText = menuHeaderLabel.appendChild(document.createElement("span"));
+            const menuInfo = menu.appendChild(document.createElement("div"));
+            const menuInfoLogo = menuInfo.appendChild(document.createElement("img"));
+            const menuInfoDetails = menuInfo.appendChild(document.createElement("div"));
+            const menuInfoTitle = menuInfoDetails.appendChild(document.createElement("h2"));
+            const menuInfoStatus = menuInfoDetails.appendChild(document.createElement("p"));
+            
+            menu.className = "menu";
+            menuMsg.className = "menu-msg";
+            menuInfo.className = "menu-info";
+            menuHeaderCountContainer.insertBefore(document.createTextNode("("), menuHeaderCount);
+            menuHeaderCountContainer.appendChild(document.createTextNode(")"));
+            menuPrevGroupBtn.innerHTML = "&#x2B9C";
+            menuNextGroupBtn.innerHTML = "&#x2B9E";
+            menuInfoTitle.innerText = "Channel Name";
+            menuInfoLogo.onerror = (e) => e.target.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=";
+            
+            function focusItem(item) {
+                if (!item) return;
+                if (focusedItem)
+                    focusedItem.a.classList.remove('focus');
+                item.a.classList.add('focus');
+	            item.a.focus();
+                focusedItem = item;
+            }
+            
+            function focusNextItem() {
+                let temp = focusedItem.next;
+                while (temp !== focusedItem && temp.hidden)
+                    temp = temp.next;
+                focusItem(temp);
+            }
+            
+            function focusPrevItem() {
+                let temp = focusedItem.prev;
+                while (temp !== focusedItem && temp.hidden)
+                    temp = temp.prev;
+                focusItem(temp);
+            }
+            
+            function loadItem(item) {
+                if (!item) return;
+                
+                if (currentState === states.menu && currentItem === focusedItem) {
+                    setState(states.watch);
+                    return;
+                }
+                
+                if (currentItem)
+                    currentItem.a.classList.remove("active");
+                    
+                item.a.classList.add("active");
+                currentItem = item;
+                focusItem(item);
+                
+                localStorage.setItem("currentItem", item.index);
+                
+                menuInfoLogo.src = item.logo;
+                menuInfoTitle.innerText = item.title;
+                
+                video.setAttribute("poster", item.logo);
+                player.resetConfiguration();
+                player.configure(item.config);
+                player.load(item.src)
+                    .then(() => {
+                        console.log("Stream was loaded successfully");
+                        menuInfoStatus.className = "live";
+                        menuInfoStatus.innerHTML = "<svg><use href='#icon-live'></use></svg> Live Streaming";
+                        video.play()
+                            .catch((error) => {
+                                if (error instanceof DOMException && error.name === "NotAllowedError") {
+                                    console.log("Video was muted to allow autoplay");
+                                    video.muted = true;
+                                    video.play();
+                                }
+                            });
+                    })
+                    .catch((error) => {
+                        let msg = "Error";
+                        
+                        switch (error.code) {
+                            case shaka.util.Error.Code.BAD_HTTP_STATUS:
+                                msg = "Stream Unavailable";		
+                                break;
+                            case shaka.util.Error.Code.HTTP_ERROR:
+                                msg = "Server Error";
+                                break;
+                            case shaka.util.Error.Code.TIMEOUT:
+                                msg = "Server Unresponsive";
+                                break;
+                        }
+                        
+                        console.error("An error occurred while loading stream: ", error);
+                        menuInfoStatus.className = "warning";
+                        menuInfoStatus.innerHTML = msg;
+                    });
+            }
+            
+            function loadItemByIndex(index) {
+                loadItem(items[index]);
+            }
+            
+            function loadNextItem() {
+                loadItem(currentItem.next);
+            }
+            
+            function loadPrevItem() {
+                loadItem(currentItem.prev);
+            }
+            
+            function getPrimaryGroupItem() {
+                if (currentItem && !currentItem.hidden)
+                    return currentItem;
+                
+                for (let i of items)
+                    if (!i.hidden) 
+                        return i
+                        
+                return null;
+            }
+            
+            function selectGroup(index) {
+                let group = groups[index];
+                
+                if (!group) return;
+                
+                for (let i of items) {
+                    i.hidden = group.filter !== "" && !i.group.includes(group.filter);
+                    i.a.classList.toggle("hidden", i.hidden);
+                }
+                
+                focusItem(getPrimaryGroupItem());
+                
+                menuPrevGroupBtn.disabled = index == 0;
+                menuNextGroupBtn.disabled = index == groups.length - 1;
+                menuHeaderText.innerText = group.text;
+                menuHeaderCount.innerText = group.count;
+                currentGroup = index;
+            }
+            
+            function selectNextGroup() {
+                selectGroup(currentGroup + 1);
+            }
+            
+            function selectPrevGroup() {
+                selectGroup(currentGroup - 1);
+            }
+            
+            function setItems(_items=[]) {
+                itempad = 0;
+                currentItem = null;
+                focusedItem = null;
+                currentGroup = 0;
+                items.length = 0;
+                groups.length = 0;
+
+                while (menuList.firstChild) {
+                    menuList.firstChild.remove();
+                }
+                
+                menuMsg.innerHTML = "";
+                menuMsg.style.display = "none";
+
+                itempad = ("" + _items.length).length;
+                
+                groups.push({ 
+                    text: "All Channels", 
+                    count: _items.length, 
+                    filter: "" 
+                });
+                
+                if (_items.length) {
+                    let _groups = {};
+                    let head = null;
+                    let prev = null;
+                
+                    for (let i = 0; i < _items.length; i++) {
+                        let item = _items[i];
+                        
+                        let li = menuList.appendChild(document.createElement("li"));
+                        let a = li.appendChild(document.createElement("a"));
+                        let numText = a.appendChild(document.createElement("span"));
+                        let nameText = a.appendChild(document.createElement("span"));
+                        
+                        let num = (i + 1) + "";
+                        
+                        a.href = "javascript:void(0);";
+                        a.addEventListener("click", () => loadItem(item));
+                        a.addEventListener("mouseover", () => focusItem(item));
+                        numText.innerText = num.padStart(itempad, "0");
+                        nameText.innerText = item.title;
+                    
+                        item.a = a;
+                        item.index = i;
+                        item.hidden = false;
+                        if (!prev) head = item;
+                        else prev.next = item;
+                        item.prev = prev;
+                        prev = item;
+                    
+                        items.push(item);
+                    
+                        for (let g of item.group)
+                            _groups[g] = (_groups[g] || 0) + 1;
+                    }
+                
+                    prev.next = head;
+                    head.prev = prev;
+                
+                    for (let i in _groups) {
+                        groups.push({ 
+                            text: i, 
+                            count: _groups[i], 
+                            filter: i 
+                        });
+                    }
+                }
+                
+                if (items.length == 0) {
+                    menuMsg.innerText = "No Items Found.";
+                    menuMsg.style.display = "block";
+                }
+                
+                selectGroup(0)
+            }
+            
+            menuPrevGroupBtn.addEventListener("click", () => selectPrevGroup());
+            menuNextGroupBtn.addEventListener("click", () => selectNextGroup());
+            
+            //// Select Item \\\\
+            let selectItem = "";
+            let selectItemHandle = null;
+            const selectItemText = container.appendChild(document.createElement("div"));
+            
+            selectItemText.className = "select-item";
+            
+            function showSelectItem() {
+                selectItemText.innerText = selectItem.padStart(itempad, "0");
+                selectItemText.style.display = "block";
+            }
+            
+            function hideSelectItem() {
+                selectItemText.innerText = "";
+                selectItemText.style.display = "none";
+            };
+            
+            function updateSelectItem(digit) {
+                if (selectItem.length === 0 && digit === "0")
+                    return;
+                
+                if (selectItem.length >= itempad)
+                    return;
+                
+                selectItem += digit;
+                
+                showSelectItem();
+                
+                if (selectItemHandle)
+                    clearTimeout(selectItemHandle);
+                
+                selectItemHandle = setTimeout(() => {
+                    loadItemByIndex(selectItem - 1);
+                    hideSelectItem();
+                    selectItemHandle = null;
+                    selectItem = "";
+                }, 2000);
+            }
+            
+            //// Manage States \\\\
+            let currentState = null;
+            const states = {
+                watch: {
+                    init: function() {},
+                    deinit: function() {},
+                    onKeyDown: function(e) {                        
+                        switch(e.key) {
+                            case "ArrowUp":
+                                loadNextItem();
+                                break;
+                            case "ArrowDown":
+                                loadPrevItem();
+                                break;
+                            case "Enter":
+                                setState(states.menu);
+                                break;
+                            case "F":
+                            case "f":
+                                toggleFullscreen();
+                                break;
+                            case "M":
+                            case "m":
+                                toggleMute();
+                                break;
+                            case "0":
+                            case "1":
+                            case "2":
+                            case "3":
+                            case "4":
+                            case "5":
+                            case "6":
+                            case "7":
+                            case "8":
+                            case "9":
+                                updateSelectItem(e.key);
+                        }
+                    }
+                },
+                menu: {
+                    init: function() {
+                        menu.classList.add("open");
+                        focusItem(getPrimaryGroupItem());
+                    },
+                    deinit: function() {
+                        menu.classList.remove("open");
+                    },
+                    onKeyDown: function(e) {
+                        switch(e.key) {
+                            case "ArrowUp":
+                                focusPrevItem();
+                                break;
+                            case "ArrowDown":
+                                focusNextItem();
+                                break;
+                            case "ArrowRight":
+                                selectNextGroup();
+                                break;
+                            case "ArrowLeft":
+                                selectPrevGroup();
+                                break;
+                            case "Escape":
+                            case "Backspace":
+                                setState(states.watch);
+                                break;
+                            case "Enter":
+                                e.preventDefault();
+                                loadItem(focusedItem);
+                                break;
+                        }
+                    }
+                }
+            };
+            
+            function setState(state) {
+                if (!state) return;
+                if (currentState && typeof currentState.deinit === "function")
+                    currentState.deinit();
+                currentState = state;
+                if (typeof currentState.init === "function")
+                    currentState.init();
+            }
+            
+            setState(states.watch);
+            
+            document.addEventListener("keydown", e => currentState.onKeyDown(e));
+        
+            if (window.location.search) {
+                let params = new URLSearchParams(window.location.search);
+                let url = params.get('url');
+                
+                if (url) {
+                    fetch(url)
+                        .then(res => {
+                            if (!res.ok)
+                                throw new Error("File not found.");
+                            return res.text();
+                        })
+                        .then(res => {
+                            let playlist = parsem3u(res);
+                            
+                            if (playlist) {
+                                let index = 0;
+                                
+                                if (localStorage.getItem("url") === url) {
+                                    index = parseInt(localStorage.getItem("currentItem")) || 0;
+                                }
+                                
+                                setItems(playlist);
+                                loadItemByIndex(index);
+                                localStorage.setItem("url", url);
+                            }
+                        })
+                        .catch(e => {
+                            console.error(e.message);
+                        });
+                }
+            }
+            
+        </script>
+    </body>
+</html>
