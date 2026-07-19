@@ -121,6 +121,12 @@
                 color: rgba(255,255,255,0.25);
                 cursor: initial;
             }
+            .menu header button svg {
+                fill: currentColor;
+                width: 10px;
+                height: 10px;
+                vertical-align: middle;
+            }
             .menu header div {
                 display: flex;
                 flex-grow: 1;
@@ -236,6 +242,14 @@
                         keyTimes="0; 0.5; 1" 
                         dur="3s" 
                         repeatCount="indefinite" />
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-left-arrow">
+                    <path d="M24 0l-24 12l24 12l-8-12z" />
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-right-arrow">
+                    <path d="M0 0l24 12l-24 12l8-12z" />
                 </symbol>
             
                 <symbol viewBox="0 0 24 24" id="icon-mute">
@@ -379,12 +393,12 @@
             controls.className = "controls";
             muteBtn.setAttribute("role", "switch");
             muteBtn.setAttribute("aria-checked", video.muted);
-            muteBtn.innerHTML = "<svg viewBox=\"0 0 24 24\"><use href='#icon-mute'></use></svg>";
-            muteBtn.innerHTML += "<svg  viewBox=\"0 0 24 24\"><use href='#icon-unmute'></use></svg>";
+            muteBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-mute"></use></svg>';
+            muteBtn.innerHTML += '<svg  viewBox="0 0 24 24"><use href="#icon-unmute"></use></svg>';
             fsBtn.setAttribute("role", "switch");
             fsBtn.setAttribute("aria-checked", false);
-            fsBtn.innerHTML = "<svg viewBox=\"0 0 24 24\"><use href='#icon-maximize'></use></svg>";
-            fsBtn.innerHTML += "<svg viewBox=\"0 0 24 24\"><use href='#icon-minimize'></use></svg>";
+            fsBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-maximize"></use></svg>';
+            fsBtn.innerHTML += '<svg viewBox="0 0 24 24"><use href="#icon-minimize"></use></svg>';
             
             function toggleMute() {
                 video.muted = !video.muted;
@@ -465,8 +479,8 @@
             menuInfo.className = "menu-info";
             menuHeaderCountContainer.insertBefore(document.createTextNode("("), menuHeaderCount);
             menuHeaderCountContainer.appendChild(document.createTextNode(")"));
-            menuPrevGroupBtn.innerHTML = "&#x2B9C";
-            menuNextGroupBtn.innerHTML = "&#x2B9E";
+            menuPrevGroupBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-left-arrow"></use></svg>'; // &#x2B9C
+            menuNextGroupBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-right-arrow"></use></svg>'; // &#x2B9E
             menuInfoTitle.innerText = "Channel Name";
             menuInfoLogo.onerror = (e) => e.target.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=";
             
@@ -681,9 +695,9 @@
             
             menuPrevGroupBtn.addEventListener("click", () => selectPrevGroup());
             menuNextGroupBtn.addEventListener("click", () => selectNextGroup());
-			
-			setItems([]);
-			
+            
+            setItems([]);
+            
             //// Select Item \\\\
             let selectItem = "";
             let selectItemHandle = null;
