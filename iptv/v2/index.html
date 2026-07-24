@@ -18,8 +18,7 @@
             }
             body {
                 color: white;
-                font-size: 14px;
-                font-weight: 600;
+                font-size: 16px;
                 font-family: system-ui;
                 background-color: black;
             }
@@ -97,11 +96,11 @@
                 position: absolute;
                 top: 32px;
                 left: 32px;
-                width: 25%;
+                width: 33%;
                 height: calc(100vh - 32px * 2);
                 background-color: rgba(0,0,0,0.8);
-                border: 1px solid rgba(255,255,255,0.5);
-                border-radius: 6px;
+                border: 2px solid rgba(255,255,255,0.4);
+                border-radius: 8px;
                 overflow: hidden;
             }
             .menu.open {
@@ -109,6 +108,8 @@
             }
             .menu header {
                 display: flex;
+                font-weight: bold;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
             }
             .menu header button {
                 padding-inline: 8px;
@@ -148,15 +149,13 @@
             .menu ul a {
                 display: flex;
                 flex-direction: row;
-                padding: 8px 12px;
-                column-gap: 24px;
                 border-radius: 6px;
                 text-decoration:none;
                 color: inherit;
                 outline: none;
             }
             .menu ul a.active {
-                color: white;
+                color: rgba(255,255,255,0.9);
             }
             .menu ul a.focus {
                 color: black;
@@ -164,6 +163,9 @@
             }
             .menu ul a.hidden {
                 display: none;
+            }
+            .menu ul a span {
+                padding: 8px 12px;
             }
             .menu ul a span:nth-child(2) {
                 overflow: hidden;
@@ -180,7 +182,7 @@
                 display: flex;
                 flex-direction: row;
                 column-gap: 12px;
-                padding: 15px 8px;
+                padding: 16px 8px;
                 border-top: 1px solid rgba(255,255,255,0.2);
             }
             .menu-info img {
@@ -193,7 +195,7 @@
                 margin: 0 0 1px 0;
             }
             .menu-info p {
-                font-size: 12px;
+                font-size: small;
                 margin: 0;
             }
             .menu-info svg {
@@ -211,19 +213,30 @@
             }
             .select-item {
                 display: none;
-                font-size: 20px;
+                font-size: 28px;
                 font-weight: bold; 
                 color: rgba(255,255,255,0.65);
-                padding: 4px;
+                padding: 4px 8px;
                 position: absolute;
                 top: 32px;
                 left: 50%;
                 transform: translateX(-50%);
                 background-color: rgba(0,0,0,0.8);
-                border: 1px solid rgba(255,255,255,0.5);
-                border-radius: 6px;
+                border: 2px solid rgba(255,255,255,0.4);
+                border-radius: 8px;
                 overflow: hidden;
             }
+            @media screen and (max-width: 1024px) {
+                .menu {
+                    width: 50%;
+                }
+            }
+            @media screen and (max-width: 768px) {
+                .menu {
+                    width: Calc(100% - 64px);
+                }
+            }
+
         </style>
     </head>
     <body>
@@ -378,14 +391,13 @@
             const muteBtn = controls.appendChild(document.createElement("button"));
             const fsBtn = controls.appendChild(document.createElement("button"));
             const video = video16x9.appendChild(document.createElement("video"));
-            const player = new shaka.Player();
-
+            const player = new shaka.Player(video);
+            
             video.volume = 1;
             video.muted = false;
             video.controls = false;
             video.preload = "auto";
             video.autoplay = "autoplay";
-            player.attach(video);
             
             container.className = "container";
             video16x9.className = "video16x9";
@@ -526,6 +538,8 @@
                 
                 menuInfoLogo.src = item.logo;
                 menuInfoTitle.innerText = item.title;
+                menuInfoStatus.className = "";
+                menuInfoStatus.innerHTML = "Loading&hellip;";
                 
                 video.setAttribute("poster", item.logo);
                 player.resetConfiguration();
