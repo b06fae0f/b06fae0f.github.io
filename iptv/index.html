@@ -1,102 +1,875 @@
 <!DOCTYPE html>
-<html dir="ltr">
-<head>
-  <meta charset="utf-8">
-  <meta name="referrer" content="no-referrer" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Online IPTV Player</title>
-  <link rel="stylesheet" href="./styles.css" />
-</head>
-<body>
-  <section class="container">
-    <header>
-      <div class="top-header-left">
-        <a href="/iptv" class="site-logo" title="IPTV Player">
-          <svg height="128" width="128" viewBox="0, 0, 128, 128" xmlns="http://www.w3.org/2000/svg">
-            <path fill="currentColor" d="M40 50l-14-33q0-4 4-2l20 33a9 5-5 0 1 26-1l28-32q4-1 3 3l-23 32q20 4 21 25q4 20-25 30q-45 18-56-10q-14-38 17-44l6 17q-3 2-3 7q 1 25 19 18l16-6q12-5 12-10q0-14-13-14q-20-1-31 5z" />
-          </svg>
-          <span>IPTV Player</span>
-        </a>
-      </div>
-      <div class="top-header-right top-header-links">
-        <a href="javascript:document.getElementById('manual').showModal();" title="manual">
-          <svg fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M216,32V192a8.00039,8.00039,0,0,1-8,8H72a16.01833,16.01833,0,0,0-16,16H192a8,8,0,0,1,0,16H48a8.00039,8.00039,0,0,1-8-8V56A32.03667,32.03667,0,0,1,72,24H208A8.00039,8.00039,0,0,1,216,32Z"></path></svg>
-          <span>Manual</span>
-        </a>
-        <a href="javascript:document.getElementById('settings').showModal();" title="settings">
-          <svg fill="currentColor" viewBox="0 0 256.00098 256.00098" xmlns="http://www.w3.org/2000/svg"><path d="M237.46191,104.26611a8.00135,8.00135,0,0,0-3.93554-5.29687L209.75049,85.77051c-1.31592-2.55078-2.75391-5.04639-4.29981-7.46094l.458-27.2124a8.00049,8.00049,0,0,0-2.62158-6.05811A111.13811,111.13811,0,0,0,162.17773,21.3418a8.00131,8.00131,0,0,0-6.55468.75927l-23.31836,13.9917c-2.86865-.13672-5.75-.13916-8.61133-.00683L100.35547,22.08252a8.003,8.003,0,0,0-6.55762-.75879A111.15557,111.15557,0,0,0,52.7207,45.07715a8.00055,8.00055,0,0,0-2.61963,6.05664l.45752,27.18994c-1.55078,2.41455-2.99365,4.90869-4.31152,7.4541l-23.7959,13.21a8.0003,8.0003,0,0,0-3.93555,5.29932,111.13522,111.13522,0,0,0,.03223,47.45068,8.00135,8.00135,0,0,0,3.93555,5.29688L46.25928,170.2334c1.31592,2.55078,2.7539,5.04639,4.2998,7.46094l-.458,27.2124a8.00053,8.00053,0,0,0,2.62159,6.0581A111.13809,111.13809,0,0,0,93.832,234.66211a8.00177,8.00177,0,0,0,6.55469-.75928l23.31836-13.9917c2.86816.13623,5.749.13867,8.61133.00684l23.33789,14.00342a8.00237,8.00237,0,0,0,6.55761.75879,111.15549,111.15549,0,0,0,41.07715-23.75342,8.00052,8.00052,0,0,0,2.61963-6.05664l-.45752-27.18994c1.55078-2.41455,2.99365-4.9087,4.31153-7.45411l23.79589-13.21a8.0002,8.0002,0,0,0,3.93555-5.29931A111.13527,111.13527,0,0,0,237.46191,104.26611ZM128.00488,172.002a44,44,0,1,1,44-44A44.04978,44.04978,0,0,1,128.00488,172.002Z"></path></svg>
-          <span>Settings</span>
-        </a>
-      </div>
-    </header>
-    <main id="main">
-      <noscript>You need to enable Javascript to use IPTV player.</noscript>
-    </main>
-    <footer>
-      <div class="footer-top">
-        Made by <a href="https://github.com/b06fae0f" target="_blank">@b06fae0f</a> / 
-        iptv-player version::<span id="version"></span>
-      </div>
-      <div class="footer-bottom">
-      &copy; 2025 All rights reserved.
-      </div>
-    </footer>
-  </section>
-  
-  <dialog id="manual" closedby="any">
-    <button class="dialog-close">&times</button>
-    <h2>Manual</h2>
-    <ul>
-      <li>
-        Press 
-        <svg fill="currentColor" width="16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 377.343 377.343" xml:space="preserve"><path d="M301.689,53.5H75.651c-10.876,0-19.725,8.842-19.725,19.713v230.909c0,10.868,8.843,19.711,19.725,19.711h226.039 c10.873,0,19.722-8.843,19.722-19.711V73.218C321.406,62.348,312.562,53.5,301.689,53.5z M186.176,106.395h-60.143v34.014H177.8 v28.279h-51.766v62.198H88.006V78.217h98.17V106.395z M338.677,0H38.662C19.094,0,3.226,15.869,3.226,35.439v306.464 c0,19.573,15.869,35.439,35.437,35.439h300.02c19.568,0,35.436-15.866,35.436-35.439V35.434C374.117,15.869,358.25,0,338.677,0z M335.381,304.122c0,18.567-15.113,33.687-33.691,33.687H75.651c-18.576,0-33.695-15.114-33.695-33.687V73.218 c0-18.569,15.114-33.688,33.695-33.688h226.039c18.572,0,33.691,15.114,33.691,33.688V304.122z"></path></svg>
-        to switch fullscreen. 
-      </li>
-      <li>
-        Press
-        <svg fill="currentColor" width="16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 419.896 419.896" xml:space="preserve"><path d="M335.713,59.54H84.18c-12.103,0-21.949,9.84-21.949,21.936v256.947c0,12.1,9.84,21.945,21.949,21.945h251.533 c12.1,0,21.945-9.84,21.945-21.945V81.476C357.652,69.38,347.812,59.54,335.713,59.54z M259.879,262.126h-42.313v-95.7 l-36.803,58.392l-36.657-58.392v95.706h-42.189V92.238h42.189l36.657,58.392l36.803-58.392h42.313V262.126z M376.87,0H43.02 C21.245,0,3.586,17.658,3.586,39.43v341.026c0,21.781,17.659,39.439,39.434,39.439h333.856c21.774,0,39.434-17.658,39.434-39.439 V39.43C416.31,17.658,398.65,0,376.87,0z M373.204,338.423c0,20.666-16.818,37.491-37.491,37.491H84.18 c-20.67,0-37.494-16.818-37.494-37.491V81.476c0-20.663,16.818-37.488,37.494-37.488h251.533c20.667,0,37.491,16.818,37.491,37.488 V338.423z"></path></svg>
-        to un/mute volume.
-      </li>
-      <li>
-        Use 
-        <svg fill="currentColor" width="32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" xml:space="preserve"><path d="M10 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m43 20l-33 21l33 21zM97 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m10 29l21 33l21-33zM97 87h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m31 20l-21 33h42zM184 174h62q10 0 10 10v62q0 10-10 10h-62q-10 0-10-10v-62q0-10 10-10m19 20v42l33-21z"></path></svg>
-        to control channels menu.
-      </li>
-      <li>
-        Press
-        <svg fill="currentColor" width="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" xml:space="preserve"><path d="M216,40H40A16.01833,16.01833,0,0,0,24,56V200a16.01833,16.01833,0,0,0,16,16H216a16.01833,16.01833,0,0,0,16-16V56A16.01833,16.01833,0,0,0,216,40Zm-32,96a8.00039,8.00039,0,0,1-8,8H99.314l10.34327,10.34277a8.00053,8.00053,0,0,1-11.31446,11.31446l-24-24c-.05664-.05664-.10449-.11768-.15869-.17578-.12549-.13282-.251-.26514-.36719-.40625-.0913-.11084-.17138-.22706-.25537-.3418-.07031-.09522-.14453-.188-.21093-.28662-.085-.12647-.15918-.25782-.23584-.38819-.05567-.09423-.11524-.186-.167-.2832-.06933-.12891-.12841-.26172-.18994-.39355-.04931-.10547-.10205-.209-.147-.31641-.05225-.12695-.09522-.25586-.14063-.38477-.042-.11816-.0874-.23437-.124-.355-.03906-.1289-.06787-.25976-.10058-.39013-.03077-.12305-.06543-.24414-.09034-.36914-.02978-.15186-.04834-.30469-.06933-.45752-.01465-.106-.03516-.20948-.0459-.3169a8.02276,8.02276,0,0,1,0-1.584c.01074-.10742.03125-.21094.0459-.3169.021-.15283.03955-.30566.06933-.45752.02491-.125.05957-.24609.09034-.36914.03271-.13037.06152-.26123.10058-.39013.03662-.12061.082-.23682.124-.355.04541-.12891.08838-.25782.14063-.38477.04492-.10742.09766-.21094.147-.31641.06153-.13183.12061-.26464.18994-.39355.05176-.09717.11133-.189.167-.2832.07666-.13037.15087-.26172.23584-.38819.0664-.09863.14062-.1914.21093-.28662.084-.11474.16407-.231.25537-.3418.11622-.14111.2417-.27343.36719-.40625.0542-.0581.10205-.11914.15869-.17578l24-24a8.00053,8.00053,0,0,1,11.31446,11.31446L99.314,128H168V104a8,8,0,0,1,16,0Z"></path></svg>
-        to select a channel. 
-      </li>
-      <li>Or simply use the mouse 
-        <svg fill="currentColor" width="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256"><path d="M148,24H108A64.07239,64.07239,0,0,0,44,88v80a64.07239,64.07239,0,0,0,64,64h40a64.07239,64.07239,0,0,0,64-64V88A64.07239,64.07239,0,0,0,148,24Zm48,64v16H136V40h12A48.05468,48.05468,0,0,1,196,88ZM108,40h12v64H60V88A48.05468,48.05468,0,0,1,108,40Z"></path></svg>.
-      </li>
-    </ul>
-  </dialog>
-  
-  <dialog id="settings" closedby="any">
-    <button class="dialog-close">&times</button>
-    <h2>Settings</h2>
-    <form name="settingsForm" enctype="multipart/form-data">
-      <label for="playlistUrl">Playlist URL:</label>
-      <input name="url" id="playlistUrl" placeholder="https://example.com/playlist.m3u" /><br>
-      <label for="playlistUpdateTime">Update Time:</label>
-      <select name="update" id="playlistUpdateTime">
-        <option value="0">Never</option>
-        <option value="1">Every day</option>
-        <option value="7">Every week</option>
-        <option value="30">Every month</option>
-        <option value="365">Every year</option>
-      </select>
-      <br>
-      <button type="submit" name="loadUrl">Load</button>
-      <p style="text-align: center;"><strong>OR</strong></p>
-      <label for="playlistFile">Upload Playlist (.m3u file):</label>
-      <input name="file" type="file" id="playlistFile" /><br>
-      <button type="submit" name="uploadFile">Upload</button>
-    </form>
-  </dialog>
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
-  <script src="./IptvPlayer.js"></script>
-  <script src="./app.js"></script>
-</body>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="referrer" content="no-referrer">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Online IPTV Player v2.0</title>
+        <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+            body {
+                color: white;
+                font-size: 16px;
+                font-family: system-ui;
+                background-color: black;
+            }
+            .container {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100vw;
+                height: 100vh;
+                
+            }
+            .overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: transparent;
+                cursor: none;
+            }
+            .overlay.show {
+                cursor: auto;
+            }
+            .controls {
+                display: none;
+                position: absolute;
+                top: 32px;
+                right: 32px;
+                align-items: center;
+                flex-direction: row;
+                column-gap: 6px;
+            }
+            .show .controls {
+                display: flex;
+            }
+            .controls button {
+                position: relative;
+                border-radius: 50%;
+                padding: 20px;
+                cursor: pointer;
+                color: white;
+                background: transparent;
+                border: 0;
+                opacity: 0.5;
+            }
+            .controls button:hover {
+                background: rgba(0,0,0,0.5);
+                opacity: 1;
+            }
+            .controls button svg {
+                position: absolute;
+                fill: currentColor;
+                transform: translate(-50%, -50%);
+            }
+            .controls button[role="switch"][aria-checked="true"] svg:first-child,
+            .controls button[role="switch"][aria-checked="false"] svg:last-child {
+                display: none;
+            }
+            .video16x9 {
+                width: 100vw;
+                height: calc(100vw * 9 / 16);
+                max-height: 100vh;
+                max-width: calc(100vh * 16 / 9);
+            }
+            .video16x9 video {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+            .menu {
+                display: none;
+                flex-direction: column;
+                color: rgba(255,255,255,0.65);
+                position: absolute;
+                top: 32px;
+                left: 32px;
+                width: 33%;
+                height: calc(100vh - 32px * 2);
+                background-color: rgba(0,0,0,0.8);
+                border: 2px solid rgba(255,255,255,0.4);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .menu.open {
+                display: flex;
+            }
+            .menu header {
+                display: flex;
+                font-weight: bold;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            }
+            .menu header button {
+                padding-inline: 8px;
+                background: transparent;
+                color: #FFC107;
+                cursor: pointer;
+                border: 0;
+            }
+            .menu header button:disabled {
+                color: rgba(255,255,255,0.25);
+                cursor: initial;
+            }
+            .menu header button svg {
+                fill: currentColor;
+                width: 10px;
+                height: 10px;
+                vertical-align: middle;
+            }
+            .menu header div {
+                display: flex;
+                flex-grow: 1;
+                column-gap: 6px;
+                padding: 8px 0;
+                justify-content: center;
+                text-transform: capitalize;
+            }
+            .menu ul {
+                list-style: none;
+                overflow-y: auto;
+                height: 100%;
+                margin: 0;
+                padding: 8px;
+            }
+            .menu ul::-webkit-scrollbar {
+                display: none;
+            }
+            .menu ul a {
+                display: flex;
+                flex-direction: row;
+                border-radius: 6px;
+                text-decoration:none;
+                color: inherit;
+                outline: none;
+            }
+            .menu ul a.active {
+                color: rgba(255,255,255,0.9);
+            }
+            .menu ul a.focus {
+                color: black;
+                background-color: #FFC107;
+            }
+            .menu ul a.hidden {
+                display: none;
+            }
+            .menu ul a span {
+                padding: 8px 12px;
+            }
+            .menu ul a span:nth-child(2) {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            .menu-msg {
+                margin: 0;
+                padding: 8px;
+                font-size: small;
+                display: none;
+            }
+            .menu-info {
+                display: flex;
+                flex-direction: row;
+                column-gap: 12px;
+                padding: 16px 8px;
+                border-top: 1px solid rgba(255,255,255,0.2);
+            }
+            .menu-info img {
+                width: 50px;
+                height: 50px;
+            }
+            .menu-info h2 {
+                font-size: 16px;
+                color: rgba(255,255,255,0.9);
+                margin: 0 0 1px 0;
+            }
+            .menu-info p {
+                font-size: small;
+                margin: 0;
+            }
+            .menu-info svg {
+                width: 16px;
+                height: 16px;
+                fill: currentColor;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .menu-info p.live {
+                color: crimson;
+            }
+            .menu-info p.warning {
+                color: yellow;
+            }
+            .select-item {
+                display: none;
+                font-size: 28px;
+                font-weight: bold; 
+                color: rgba(255,255,255,0.65);
+                padding: 4px 8px;
+                position: absolute;
+                top: 32px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0,0,0,0.8);
+                border: 2px solid rgba(255,255,255,0.4);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            @media screen and (max-width: 1024px) {
+                .menu {
+                    width: 50%;
+                }
+            }
+            @media screen and (max-width: 768px) {
+                .menu {
+                    width: Calc(100% - 64px);
+                }
+            }
+
+        </style>
+    </head>
+    <body>
+        <!-- Hidden global SVG icon registry -->
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <defs>
+                <symbol viewBox="0 0 100 100" id="icon-live">
+                    <path d="M 18.2 16.9 C -0.5 35 -0.5 65 18.2 83.1 L 24 77 C 8.8 62 8.8 38 24 23z" />
+                    <path d="M 29.8 29.0 C 18 41 18 59 29.8 71 L 35.5 65.1 C 27 57 27 43 35.5 34.9z" />
+                    <circle cx="50" cy="50" r="12.5" />
+                    <path d="M 70.5 29.0 C 82 41 82 59 70.5 71 L 64.5 65.1 C 73 57 73 43 64.5 34.9z" />
+                    <path d="M 81.8 16.9 C 100.5 35 100.5 65 81.8 83.1 L 76 77 C 91.2 62 91.2 38 76 23z" />
+                    <animate 
+                        attributeName="opacity" 
+                        values="0; 1; 0" 
+                        keyTimes="0; 0.5; 1" 
+                        dur="3s" 
+                        repeatCount="indefinite" />
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-left-arrow">
+                    <path d="M24 0l-24 12l24 12l-8-12z" />
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-right-arrow">
+                    <path d="M0 0l24 12l-24 12l8-12z" />
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-mute">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-unmute">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </symbol>
+            
+                <symbol viewBox="0 0 24 24" id="icon-maximize">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </symbol>
+                
+                <symbol viewBox="0 0 24 24" id="icon-minimize">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                </symbol>
+            </defs>
+        </svg>
+        <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.15.3/dist/shaka-player.compiled.min.js"></script>
+        <script>
+            //// M3U Parser \\\\
+            function parsem3u(text) {
+                const lineRegex = /[^\r\n]+/g;
+                const extinfAttrRegex = /([^\s=]+)=(?:"([^"]*)"|([^\s]+))/g;
+                const extinfRegex = /^([-+]?\d+)\s*((?:[^",]|"[^"]*")*),(.*)$/;
+                const forceSSL = location.protocol === 'https:';
+                
+                let playlist = [];
+                let item = {config: {}};
+                let match, line;
+                
+                if ((match = lineRegex.exec(text)) !== null) {
+                    line = match[0].trim();
+                    
+                    if (line.indexOf("#EXTM3U") !== 0) {
+                        console.error("Invalid m3u file header.");
+                        return null;
+                    }
+                }
+                
+                while ((match = lineRegex.exec(text)) !== null) {
+                    line = match[0].trim();
+                    
+                    if (!line) continue;
+                    
+                    if (line[0] === '#') {
+                        let firstColon = line.indexOf(':');
+                        
+                        if (firstColon !== -1) {
+                            let directive = line.slice(0, firstColon); 
+                            let input = line.slice(firstColon + 1);
+                        
+                            switch (directive) {
+                                case "#EXTINF":
+                                    if ((match = input.match(extinfRegex)) !== null) {
+                                        let attributes = {};
+                                        
+                                        for (let m of match[2].matchAll(extinfAttrRegex)) {
+                                            attributes[m[1]] = m[2] || m[3];
+                                        }
+                                        
+                                        item.id = attributes["tvg-id"];
+                                        item.logo = attributes["tvg-logo"];
+                                        item.runtime = parseInt(match[1]);
+                                        item.title = match[3].trim() || attributes["tvg-name"].trim() || "Unkown";
+                                        item.group = attributes["group-title"] ? attributes["group-title"].split(';') : [];
+                                    }
+                                    break;
+                                case "#KODIPROP":
+                                    let propp = input.indexOf('=');
+                                    if (propp === -1) break;
+                                    let prop = input.slice(0, propp);
+                                    let data = input.slice(propp + 1);
+                                    
+                                    switch (prop) {
+                                        case "inputstream.adaptive.license_type":
+                                            item.license_type = data;
+                                            break;
+                                        case "inputstream.adaptive.license_key":
+                                            if (!item.license_type) break;
+                                            if (data.indexOf('http') === 0) {
+                                                let [url, ...headers] = data.split('|');
+                                                item.config.drm = item.config.drm || {};
+                                                item.config.drm.servers = item.config.drm.servers || {};
+                                                item.config.drm.servers[item.license_type] = url;
+                                                if (headers.length) {
+                                                    item.config.drm.advanced = item.config.drm.advanced || {};
+                                                    item.config.drm.advanced[item.license_type] = item.config.drm.advanced[item.license_type] || {};
+                                                    item.config.drm.advanced[item.license_type].headers = {};
+                                                    for (let header of headers) {
+                                                        let [k, v] = header.split('=');
+                                                        item.config.drm.advanced[item.license_type].headers[k] = v; 
+                                                    }
+                                                }
+                                            } else if (data.indexOf(':') !== -1 && item.license_type === "org.w3.clearkey") {
+                                                let [k, v] = data.split(':');
+                                                item.config.drm = item.config.drm || {};
+                                                item.config.drm.clearKeys = item.config.drm.clearKeys || {};
+                                                item.config.drm.clearKeys[k] = v;
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
+                    } else {
+                        item.src = encodeURI(forceSSL ? line.replace(/^http:/, "https:") : line);
+                        playlist.push(item);
+                        item = {config: {}};
+                    }
+                }
+                
+                return playlist;
+            }
+            
+            //// Video Player \\\\
+            const container = document.body.appendChild(document.createElement("div"));
+            const video16x9 = container.appendChild(document.createElement("div"));
+            const overlay = container.appendChild(document.createElement("div"));
+            const controls = overlay.appendChild(document.createElement("div"));
+            const muteBtn = controls.appendChild(document.createElement("button"));
+            const fsBtn = controls.appendChild(document.createElement("button"));
+            const video = video16x9.appendChild(document.createElement("video"));
+            const player = new shaka.Player(video);
+            
+            video.volume = 1;
+            video.muted = false;
+            video.controls = false;
+            video.preload = "auto";
+            video.autoplay = "autoplay";
+            
+            container.className = "container";
+            video16x9.className = "video16x9";
+            overlay.className = "overlay";
+            controls.className = "controls";
+            muteBtn.setAttribute("role", "switch");
+            muteBtn.setAttribute("aria-checked", video.muted);
+            muteBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-mute"></use></svg>';
+            muteBtn.innerHTML += '<svg  viewBox="0 0 24 24"><use href="#icon-unmute"></use></svg>';
+            fsBtn.setAttribute("role", "switch");
+            fsBtn.setAttribute("aria-checked", false);
+            fsBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-maximize"></use></svg>';
+            fsBtn.innerHTML += '<svg viewBox="0 0 24 24"><use href="#icon-minimize"></use></svg>';
+            
+            function toggleMute() {
+                video.muted = !video.muted;
+            }
+            
+            video.addEventListener("volumechange", e => {
+                muteBtn.setAttribute("aria-checked", e.target.muted);
+            });
+            
+            muteBtn.addEventListener("click", e => toggleMute());
+            
+            function toggleFullscreen() {
+                if (document.fullscreenElement !== null) {
+                    document.exitFullscreen();
+                } else {
+                    container.requestFullscreen();
+                }
+            }
+            
+            document.addEventListener("fullscreenchange", e => {
+                fsBtn.setAttribute("aria-checked", document.fullscreen);
+            });
+            
+            fsBtn.addEventListener("click", e => toggleFullscreen());
+            
+            overlay.addEventListener("click", e => {
+                if (e.target !== overlay)
+                    return;
+                switch (currentState) {
+                    case states.watch:
+                        setState(states.menu);
+                        break;
+                    case states.menu:
+                        setState(states.watch);
+                        break;
+                } 
+            });
+            
+            let showControlsHandle = null;
+            overlay.addEventListener("mousemove", e => {
+                overlay.classList.add("show");
+                
+                if (showControlsHandle !== null) {
+                    clearTimeout(showControlsHandle);
+                }
+                
+                showControlsHandle = setTimeout(e => {
+                    overlay.classList.remove("show");
+                    showControlsHandle = null;
+                }, 3000);
+            });
+            
+            //// Menu \\\\
+            let itempad = 0;
+            let currentItem = null;
+            let focusedItem = null;
+            let currentGroup = 0;
+            const items = [];
+            const groups = [];
+            const menu = container.appendChild(document.createElement("aside"));
+            const menuHeader = menu.appendChild(document.createElement("header"));
+            const menuMsg = menu.appendChild(document.createElement("p"));
+            const menuList = menu.appendChild(document.createElement("ul"));
+            const menuPrevGroupBtn = menuHeader.appendChild(document.createElement("button"));
+            const menuHeaderLabel = menuHeader.appendChild(document.createElement("div"));
+            const menuNextGroupBtn = menuHeader.appendChild(document.createElement("button"));
+            const menuHeaderCountContainer = menuHeaderLabel.appendChild(document.createElement("span"));
+            const menuHeaderCount = menuHeaderCountContainer.appendChild(document.createElement("span"));
+            const menuHeaderText = menuHeaderLabel.appendChild(document.createElement("span"));
+            const menuInfo = menu.appendChild(document.createElement("div"));
+            const menuInfoLogo = menuInfo.appendChild(document.createElement("img"));
+            const menuInfoDetails = menuInfo.appendChild(document.createElement("div"));
+            const menuInfoTitle = menuInfoDetails.appendChild(document.createElement("h2"));
+            const menuInfoStatus = menuInfoDetails.appendChild(document.createElement("p"));
+            
+            menu.className = "menu";
+            menuMsg.className = "menu-msg";
+            menuInfo.className = "menu-info";
+            menuHeaderCountContainer.insertBefore(document.createTextNode("("), menuHeaderCount);
+            menuHeaderCountContainer.appendChild(document.createTextNode(")"));
+            menuPrevGroupBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-left-arrow"></use></svg>'; // &#x2B9C
+            menuNextGroupBtn.innerHTML = '<svg viewBox="0 0 24 24"><use href="#icon-right-arrow"></use></svg>'; // &#x2B9E
+            menuInfoTitle.innerText = "Channel Name";
+            menuInfoLogo.onerror = (e) => e.target.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=";
+            
+            function focusItem(item) {
+                if (!item) return;
+                if (focusedItem)
+                    focusedItem.a.classList.remove('focus');
+                item.a.classList.add('focus');
+	            item.a.focus();
+                focusedItem = item;
+            }
+            
+            function focusNextItem() {
+                let temp = focusedItem.next;
+                while (temp !== focusedItem && temp.hidden)
+                    temp = temp.next;
+                focusItem(temp);
+            }
+            
+            function focusPrevItem() {
+                let temp = focusedItem.prev;
+                while (temp !== focusedItem && temp.hidden)
+                    temp = temp.prev;
+                focusItem(temp);
+            }
+            
+            function loadItem(item) {
+                if (!item) return;
+                
+                if (currentState === states.menu && currentItem === focusedItem) {
+                    setState(states.watch);
+                    return;
+                }
+                
+                if (currentItem)
+                    currentItem.a.classList.remove("active");
+                    
+                item.a.classList.add("active");
+                currentItem = item;
+                focusItem(item);
+                
+                localStorage.setItem("currentItem", item.index);
+                
+                menuInfoLogo.src = item.logo;
+                menuInfoTitle.innerText = item.title;
+                menuInfoStatus.className = "";
+                menuInfoStatus.innerHTML = "Loading&hellip;";
+                
+                video.setAttribute("poster", item.logo);
+                player.resetConfiguration();
+                player.configure(item.config);
+                player.load(item.src)
+                    .then(() => {
+                        console.log("Stream was loaded successfully");
+                        menuInfoStatus.className = "live";
+                        menuInfoStatus.innerHTML = "<svg><use href='#icon-live'></use></svg> Live Streaming";
+                        video.play()
+                            .catch((error) => {
+                                if (error instanceof DOMException && error.name === "NotAllowedError") {
+                                    console.log("Video was muted to allow autoplay");
+                                    video.muted = true;
+                                    video.play();
+                                }
+                            });
+                    })
+                    .catch((error) => {
+                        let msg = "Error";
+                        
+                        switch (error.code) {
+                            case shaka.util.Error.Code.BAD_HTTP_STATUS:
+                                msg = "Stream Unavailable";		
+                                break;
+                            case shaka.util.Error.Code.HTTP_ERROR:
+                                msg = "Server Error";
+                                break;
+                            case shaka.util.Error.Code.TIMEOUT:
+                                msg = "Server Unresponsive";
+                                break;
+                        }
+                        
+                        console.error("An error occurred while loading stream: ", error);
+                        menuInfoStatus.className = "warning";
+                        menuInfoStatus.innerHTML = msg;
+                    });
+            }
+            
+            function loadItemByIndex(index) {
+                loadItem(items[index]);
+            }
+            
+            function loadNextItem() {
+                loadItem(currentItem.next);
+            }
+            
+            function loadPrevItem() {
+                loadItem(currentItem.prev);
+            }
+            
+            function getPrimaryGroupItem() {
+                if (currentItem && !currentItem.hidden)
+                    return currentItem;
+                
+                for (let i of items)
+                    if (!i.hidden) 
+                        return i
+                        
+                return null;
+            }
+            
+            function selectGroup(index) {
+                let group = groups[index];
+                
+                if (!group) return;
+                
+                for (let i of items) {
+                    i.hidden = group.filter !== "" && !i.group.includes(group.filter);
+                    i.a.classList.toggle("hidden", i.hidden);
+                }
+                
+                focusItem(getPrimaryGroupItem());
+                
+                menuPrevGroupBtn.disabled = index == 0;
+                menuNextGroupBtn.disabled = index == groups.length - 1;
+                menuHeaderText.innerText = group.text;
+                menuHeaderCount.innerText = group.count;
+                currentGroup = index;
+            }
+            
+            function selectNextGroup() {
+                selectGroup(currentGroup + 1);
+            }
+            
+            function selectPrevGroup() {
+                selectGroup(currentGroup - 1);
+            }
+            
+            function setItems(_items=[]) {
+                itempad = 0;
+                currentItem = null;
+                focusedItem = null;
+                currentGroup = 0;
+                items.length = 0;
+                groups.length = 0;
+
+                while (menuList.firstChild) {
+                    menuList.firstChild.remove();
+                }
+                
+                menuMsg.innerHTML = "";
+                menuMsg.style.display = "none";
+
+                itempad = ("" + _items.length).length;
+                
+                groups.push({ 
+                    text: "All Channels", 
+                    count: _items.length, 
+                    filter: "" 
+                });
+                
+                if (_items.length) {
+                    let _groups = {};
+                    let head = null;
+                    let prev = null;
+                
+                    for (let i = 0; i < _items.length; i++) {
+                        let item = _items[i];
+                        
+                        let li = menuList.appendChild(document.createElement("li"));
+                        let a = li.appendChild(document.createElement("a"));
+                        let numText = a.appendChild(document.createElement("span"));
+                        let nameText = a.appendChild(document.createElement("span"));
+                        
+                        let num = (i + 1) + "";
+                        
+                        a.href = "javascript:void(0);";
+                        a.addEventListener("click", () => loadItem(item));
+                        a.addEventListener("mouseover", () => focusItem(item));
+                        numText.innerText = num.padStart(itempad, "0");
+                        nameText.innerText = item.title;
+                    
+                        item.a = a;
+                        item.index = i;
+                        item.hidden = false;
+                        if (!prev) head = item;
+                        else prev.next = item;
+                        item.prev = prev;
+                        prev = item;
+                    
+                        items.push(item);
+                    
+                        for (let g of item.group)
+                            _groups[g] = (_groups[g] || 0) + 1;
+                    }
+                
+                    prev.next = head;
+                    head.prev = prev;
+                
+                    for (let i in _groups) {
+                        groups.push({ 
+                            text: i, 
+                            count: _groups[i], 
+                            filter: i 
+                        });
+                    }
+                }
+                
+                if (items.length == 0) {
+                    menuMsg.innerText = "No Items Found.";
+                    menuMsg.style.display = "block";
+                }
+                
+                selectGroup(0)
+            }
+            
+            menuPrevGroupBtn.addEventListener("click", () => selectPrevGroup());
+            menuNextGroupBtn.addEventListener("click", () => selectNextGroup());
+            
+            setItems([]);
+            
+            //// Select Item \\\\
+            let selectItem = "";
+            let selectItemHandle = null;
+            const selectItemText = container.appendChild(document.createElement("div"));
+            
+            selectItemText.className = "select-item";
+            
+            function showSelectItem() {
+                selectItemText.innerText = selectItem.padStart(itempad, "0");
+                selectItemText.style.display = "block";
+            }
+            
+            function hideSelectItem() {
+                selectItemText.innerText = "";
+                selectItemText.style.display = "none";
+            };
+            
+            function updateSelectItem(digit) {
+                if (selectItem.length === 0 && digit === "0")
+                    return;
+                
+                if (selectItem.length >= itempad)
+                    return;
+                
+                selectItem += digit;
+                
+                showSelectItem();
+                
+                if (selectItemHandle)
+                    clearTimeout(selectItemHandle);
+                
+                selectItemHandle = setTimeout(() => {
+                    loadItemByIndex(selectItem - 1);
+                    hideSelectItem();
+                    selectItemHandle = null;
+                    selectItem = "";
+                }, 2000);
+            }
+            
+            //// Manage States \\\\
+            let currentState = null;
+            const states = {
+                watch: {
+                    init: function() {},
+                    deinit: function() {},
+                    onKeyDown: function(e) {                        
+                        switch(e.key) {
+                            case "ArrowUp":
+                                loadNextItem();
+                                break;
+                            case "ArrowDown":
+                                loadPrevItem();
+                                break;
+                            case "Enter":
+                                setState(states.menu);
+                                break;
+                            case "F":
+                            case "f":
+                                toggleFullscreen();
+                                break;
+                            case "M":
+                            case "m":
+                                toggleMute();
+                                break;
+                            case "0":
+                            case "1":
+                            case "2":
+                            case "3":
+                            case "4":
+                            case "5":
+                            case "6":
+                            case "7":
+                            case "8":
+                            case "9":
+                                updateSelectItem(e.key);
+                        }
+                    }
+                },
+                menu: {
+                    init: function() {
+                        menu.classList.add("open");
+                        focusItem(getPrimaryGroupItem());
+                    },
+                    deinit: function() {
+                        menu.classList.remove("open");
+                    },
+                    onKeyDown: function(e) {
+                        switch(e.key) {
+                            case "ArrowUp":
+                                focusPrevItem();
+                                break;
+                            case "ArrowDown":
+                                focusNextItem();
+                                break;
+                            case "ArrowRight":
+                                selectNextGroup();
+                                break;
+                            case "ArrowLeft":
+                                selectPrevGroup();
+                                break;
+                            case "Escape":
+                            case "Backspace":
+                                setState(states.watch);
+                                break;
+                            case "Enter":
+                                e.preventDefault();
+                                loadItem(focusedItem);
+                                break;
+                        }
+                    }
+                }
+            };
+            
+            function setState(state) {
+                if (!state) return;
+                if (currentState && typeof currentState.deinit === "function")
+                    currentState.deinit();
+                currentState = state;
+                if (typeof currentState.init === "function")
+                    currentState.init();
+            }
+            
+            setState(states.watch);
+            
+            document.addEventListener("keydown", e => currentState.onKeyDown(e));
+        
+            if (window.location.search) {
+                let params = new URLSearchParams(window.location.search);
+                let url = params.get('url');
+                
+                if (url) {
+                    fetch(url)
+                        .then(res => {
+                            if (!res.ok)
+                                throw new Error("File not found.");
+                            return res.text();
+                        })
+                        .then(res => {
+                            let playlist = parsem3u(res);
+                            
+                            if (playlist) {
+                                let index = 0;
+                                
+                                if (localStorage.getItem("url") === url) {
+                                    index = parseInt(localStorage.getItem("currentItem")) || 0;
+                                }
+                                
+                                setItems(playlist);
+                                loadItemByIndex(index);
+                                localStorage.setItem("url", url);
+                            }
+                        })
+                        .catch(e => {
+                            console.error(e.message);
+                        });
+                }
+            }
+            
+        </script>
+    </body>
 </html>
